@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { requireCurrentUser } from '@/lib/queries';
+import type { Division } from '@/lib/supabase/types';
 
 const UserPatch = z.object({
   full_name: z.string().min(1).optional(),
@@ -27,7 +28,9 @@ export async function updateUserAdmin(id: string, formData: FormData) {
 
   const supabase = await createClient();
   const { data: divisions } = await supabase.from('divisions').select('id, code');
-  const adminDivisionId = (divisions ?? []).find((division) => division.code === 'admin')?.id;
+  const adminDivisionId = ((divisions ?? []) as Pick<Division, 'id' | 'code'>[]).find(
+    (division) => division.code === 'admin'
+  )?.id;
   const isGrantor = ADMIN_GRANTOR_EMAILS.has(profile.email.toLowerCase());
   const isGrantingAdminPrivilege =
     parsed.data.role === 'owner' ||

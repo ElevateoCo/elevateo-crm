@@ -1,7 +1,25 @@
-import { createLocalClient } from '@/lib/local/client';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { env, assertSupabaseEnv } from '@/lib/env';
 
-// Local-mode placeholder. When you move to real Supabase, swap this back to
-// createServerClient from @supabase/ssr and feed it env URLs + cookies.
 export async function createClient() {
-  return createLocalClient();
+  assertSupabaseEnv();
+  const cookieStore = await cookies();
+
+  return createServerClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Server Components may not be allowed to write cookies directly.
+        }
+      },
+    },
+  });
 }
