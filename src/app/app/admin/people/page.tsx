@@ -21,6 +21,9 @@ export default async function AdminPeoplePage() {
   const users = await getAllUsers();
   const divMap = new Map(divisions.map((d) => [d.id, d]));
   const userMap = new Map(users.map((u) => [u.id, u]));
+  const canGrantAdmin = ['allan.chan@elevateoco.com', 'arnis@elevateoco.com', 'hazem.dweik@elevateoco.com'].includes(
+    profile.email.toLowerCase()
+  );
 
   return (
     <div>
@@ -65,7 +68,12 @@ export default async function AdminPeoplePage() {
                   )}
                 </div>
                 <div className="text-right">
-                  <PersonEditor user={u} divisions={divisions} users={users} />
+                  <PersonEditor
+                    user={u}
+                    divisions={divisions}
+                    users={users}
+                    canGrantAdmin={canGrantAdmin}
+                  />
                 </div>
               </div>
             );

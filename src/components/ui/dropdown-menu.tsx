@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -17,7 +16,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[10rem] overflow-hidden rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] p-1 text-[var(--color-fg)] shadow-xl',
+        'z-50 min-w-[10rem] overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-1 text-[var(--color-fg)] shadow-[0_8px_24px_rgba(0,0,0,0.08)]',
         className
       )}
       {...props}
@@ -33,7 +32,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-[var(--color-surface-3)]',
+      'relative flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none focus:bg-[var(--color-surface-3)]',
       className
     )}
     {...props}
@@ -47,7 +46,7 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn('px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]', className)}
+    className={cn('px-2 py-1.5 text-[11px] font-medium text-[var(--color-fg-dim)]', className)}
     {...props}
   />
 ));

@@ -44,6 +44,12 @@ export default async function SettingsPage() {
             </div>
             <div>
               <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)] mb-1">
+                Cold call goal
+              </div>
+              <div className="text-sm">{profile.cold_call_goal ?? 40} calls / day</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)] mb-1">
                 Division
               </div>
               {div ? (

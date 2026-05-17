@@ -7,8 +7,8 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Soarx CRM',
-  description: 'Agency war room: hierarchy, projects, tasks, approvals.',
+  title: 'Elevateoco CRM',
+  description: 'Hierarchy, projects, tasks, approvals — built for Elevateoco.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,12 +18,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <Toaster
           position="bottom-right"
-          theme="dark"
+          theme="light"
           toastOptions={{
             style: {
-              background: 'var(--color-surface-2)',
+              background: 'var(--color-surface)',
               border: '1px solid var(--color-border)',
               color: 'var(--color-fg)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
             },
           }}
         />

@@ -24,17 +24,17 @@ export function TaskBoard({ tasks, users }: { tasks: Task[]; users: User[] }) {
         return (
           <div
             key={status}
-            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] flex flex-col"
+            className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] flex flex-col shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
           >
-            <div className="px-3 py-2 border-b border-[var(--color-border)] flex items-center justify-between">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
+            <div className="px-4 py-2.5 border-b border-[var(--color-border)] flex items-center justify-between">
+              <div className="text-[12px] font-medium text-[var(--color-fg)]">
                 {taskStatusLabel[status]}
               </div>
-              <span className="text-[10px] font-mono text-[var(--color-fg-dim)]">{list.length}</span>
+              <span className="text-[11px] font-mono text-[var(--color-fg-dim)]">{list.length}</span>
             </div>
-            <div className="flex-1 p-2 space-y-2 min-h-[60px]">
+            <div className="flex-1 p-2.5 space-y-2 min-h-[80px]">
               {list.length === 0 ? (
-                <div className="text-[11px] text-[var(--color-fg-dim)] px-2 py-3">Nothing here.</div>
+                <div className="text-[12px] text-[var(--color-fg-dim)] px-2 py-3">Nothing here.</div>
               ) : (
                 list.map((t) => {
                   const assignee = t.assigned_to ? userMap.get(t.assigned_to) : null;
@@ -44,9 +44,11 @@ export function TaskBoard({ tasks, users }: { tasks: Task[]; users: User[] }) {
                     <Link
                       key={t.id}
                       href={`/app/tasks/${t.id}`}
-                      className="block rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] p-2.5 hover:bg-[var(--color-surface-3)] transition"
+                      className="block rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:border-[var(--color-border-strong)] transition"
                     >
-                      <div className="text-sm font-medium line-clamp-2 mb-2">{t.title}</div>
+                      <div className="text-[13px] font-medium line-clamp-2 mb-2 text-[var(--color-fg)]">
+                        {t.title}
+                      </div>
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5">
                           <Badge tone={priorityTone[t.priority]} className="capitalize">
@@ -54,8 +56,8 @@ export function TaskBoard({ tasks, users }: { tasks: Task[]; users: User[] }) {
                           </Badge>
                           {t.deadline ? (
                             <span
-                              className={`inline-flex items-center gap-1 text-[10px] ${
-                                overdue ? 'text-red-300' : 'text-[var(--color-fg-dim)]'
+                              className={`inline-flex items-center gap-1 text-[11px] ${
+                                overdue ? 'text-[var(--color-danger)]' : 'text-[var(--color-fg-dim)]'
                               }`}
                             >
                               <CalendarDays className="h-2.5 w-2.5" />

@@ -108,6 +108,42 @@ export async function updateTask(id: string, formData: FormData) {
   return { ok: true };
 }
 
+export async function assignTask(taskId: string, userId: string) {
+  const { profile } = await requireCurrentUser();
+  const supabase = await createClient();
+  const { data: task } = await supabase.from('tasks').select('*').eq('id', taskId).maybeSingle();
+  if (!task) return { error: 'Task not found' };
+
+  const { error } = await supabase
+    .from('tasks')
+    .update({ assigned_to: userId })
+    .eq('id', taskId);
+  if (error) return { error: error.message };
+
+  await supabase.from('activity_log').insert({
+    entity_type: 'task',
+    entity_id: taskId,
+    actor_id: profile.id,
+    action: 'assigned the task',
+  });
+
+  if (userId !== profile.id) {
+    await supabase.from('notifications').insert({
+      user_id: userId,
+      actor_id: profile.id,
+      type: 'task_assigned',
+      title: `Assigned: ${task.title}`,
+      body: 'You have a new task.',
+      link: `/app/tasks/${taskId}`,
+      task_id: taskId,
+    });
+  }
+
+  revalidatePath(`/app/tasks/${taskId}`);
+  revalidatePath('/app/tasks');
+  return { ok: true };
+}
+
 export async function moveTaskStatus(id: string, status: string) {
   const { profile } = await requireCurrentUser();
   const supabase = await createClient();

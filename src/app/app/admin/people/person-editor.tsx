@@ -26,10 +26,12 @@ export function PersonEditor({
   user,
   divisions,
   users,
+  canGrantAdmin,
 }: {
   user: User;
   divisions: Division[];
   users: User[];
+  canGrantAdmin: boolean;
 }) {
   const [pending, setPending] = useState(false);
   const [role, setRole] = useState(user.role);
@@ -37,6 +39,9 @@ export function PersonEditor({
   const [manager, setManager] = useState(user.manager_id ?? '');
   const [active, setActive] = useState(user.is_active);
   const [open, setOpen] = useState(false);
+  const selectableDivisions = canGrantAdmin
+    ? divisions
+    : divisions.filter((division) => division.code !== 'admin');
 
   async function onSubmit(formData: FormData) {
     formData.set('role', role);
@@ -80,11 +85,13 @@ export function PersonEditor({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(['owner', 'executive', 'lead', 'member', 'reservist'] as const).map((r) => (
-                    <SelectItem key={r} value={r} className="capitalize">
-                      {r}
-                    </SelectItem>
-                  ))}
+                  {(['owner', 'executive', 'lead', 'member', 'reservist'] as const)
+                    .filter((r) => canGrantAdmin || r !== 'owner')
+                    .map((r) => (
+                      <SelectItem key={r} value={r} className="capitalize">
+                        {r}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -95,7 +102,7 @@ export function PersonEditor({
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
                 <SelectContent>
-                  {divisions.map((d) => (
+                  {selectableDivisions.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.name}
                     </SelectItem>
@@ -104,6 +111,11 @@ export function PersonEditor({
               </Select>
             </div>
           </div>
+          {!canGrantAdmin ? (
+            <p className="text-[11px] text-[var(--color-fg-dim)]">
+              Admin privileges can only be assigned by Allan, Arnis, or Hazem.
+            </p>
+          ) : null}
           <div className="space-y-1.5">
             <Label>Reports to</Label>
             <Select value={manager} onValueChange={setManager}>

@@ -8,6 +8,7 @@ import { requireCurrentUser } from '@/lib/queries';
 const Patch = z.object({
   full_name: z.string().min(1).max(120),
   avatar_url: z.string().url().optional().or(z.literal('')),
+  cold_call_goal: z.coerce.number().int().min(0).max(500),
 });
 
 export async function updateProfile(formData: FormData) {
@@ -15,6 +16,7 @@ export async function updateProfile(formData: FormData) {
   const parsed = Patch.safeParse({
     full_name: formData.get('full_name'),
     avatar_url: formData.get('avatar_url') ?? '',
+    cold_call_goal: formData.get('cold_call_goal') ?? 0,
   });
   if (!parsed.success) return { error: 'Invalid input' };
 
@@ -24,6 +26,7 @@ export async function updateProfile(formData: FormData) {
     .update({
       full_name: parsed.data.full_name,
       avatar_url: parsed.data.avatar_url || null,
+      cold_call_goal: parsed.data.cold_call_goal,
     })
     .eq('id', profile.id);
 

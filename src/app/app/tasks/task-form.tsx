@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,24 +14,81 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { createTask, updateTask } from './actions';
-import type { Project, Task, User } from '@/lib/supabase/types';
+import type { Client, Division, Project, Task, User } from '@/lib/supabase/types';
+
+const NO_CLIENT = '__none__';
+const UNASSIGNED = '__unassigned__';
 
 export function TaskForm({
   projectId,
   projects,
+  clients,
   users,
+  divisions,
   existing,
 }: {
   projectId?: string;
   projects: Project[];
+  clients?: Client[];
   users: User[];
+  divisions: Division[];
   existing?: Task;
 }) {
   const [pending, setPending] = useState(false);
-  const [proj, setProj] = useState<string>(existing?.project_id ?? projectId ?? '');
-  const [assignee, setAssignee] = useState<string>(existing?.assigned_to ?? '');
+
+  const preselectedProject = existing?.project_id ?? projectId ?? '';
+  const preselectedClient = useMemo(() => {
+    if (!preselectedProject) return '';
+    const project = projects.find((item) => item.id === preselectedProject);
+    return project?.client_id ?? NO_CLIENT;
+  }, [preselectedProject, projects]);
+
+  const [client, setClient] = useState<string>(preselectedClient);
+  const [proj, setProj] = useState<string>(preselectedProject);
+  const [assignee, setAssignee] = useState<string>(existing?.assigned_to ?? UNASSIGNED);
   const [reviewer, setReviewer] = useState<string>(existing?.reviewer_id ?? '');
   const [priority, setPriority] = useState<string>(existing?.priority ?? 'normal');
+
+  const divisionMap = useMemo(() => new Map(divisions.map((d) => [d.id, d.code])), [divisions]);
+
+  const filteredProjects = useMemo(() => {
+    if (!clients) return projects;
+    if (!client) return [];
+    if (client === NO_CLIENT) return projects.filter((project) => !project.client_id);
+    return projects.filter((project) => project.client_id === client);
+  }, [projects, clients, client]);
+
+  const reviewerOptions = useMemo(() => {
+    const selectedProject = projects.find((project) => project.id === proj);
+    const divisionCode = selectedProject?.division_id
+      ? divisionMap.get(selectedProject.division_id) ?? null
+      : null;
+    const roleWeight: Record<User['role'], number> = {
+      owner: 0,
+      executive: 1,
+      lead: 2,
+      member: 3,
+      reservist: 4,
+    };
+
+    return users
+      .filter((user) => {
+        if (!user.is_active) return false;
+        if (!['owner', 'executive', 'lead'].includes(user.role)) return false;
+        if (!selectedProject?.division_id) return true;
+        if (user.division_id === selectedProject.division_id) return true;
+        return !!divisionCode && Array.isArray(user.divisions) && user.divisions.includes(divisionCode);
+      })
+      .sort((a, b) => {
+        const roleDiff = roleWeight[a.role] - roleWeight[b.role];
+        if (roleDiff !== 0) return roleDiff;
+        return (a.full_name || a.email).localeCompare(b.full_name || b.email);
+      });
+  }, [divisionMap, proj, projects, users]);
+
+  if (proj && filteredProjects.length && !filteredProjects.find((project) => project.id === proj)) {
+    setProj('');
+  }
 
   async function onSubmit(formData: FormData) {
     if (!existing) {
@@ -41,20 +98,20 @@ export function TaskForm({
       }
       formData.set('project_id', proj);
     }
-    if (assignee) formData.set('assigned_to', assignee);
+    if (assignee && assignee !== UNASSIGNED) formData.set('assigned_to', assignee);
     if (reviewer) formData.set('reviewer_id', reviewer);
     formData.set('priority', priority);
     setPending(true);
     try {
-      const res = existing
-        ? await updateTask(existing.id, formData)
-        : await createTask(formData);
-      if (res && 'error' in res && res.error) toast.error(res.error);
+      const result = existing ? await updateTask(existing.id, formData) : await createTask(formData);
+      if (result && 'error' in result && result.error) toast.error(result.error);
       else if (existing) toast.success('Task saved');
     } finally {
       setPending(false);
     }
   }
+
+  const lockProjectPicker = !!existing || !!projectId;
 
   return (
     <form action={onSubmit} className="space-y-3">
@@ -71,7 +128,54 @@ export function TaskForm({
           rows={3}
         />
       </div>
-      {!existing ? (
+
+      {!lockProjectPicker && clients ? (
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Client</Label>
+            <Select
+              value={client}
+              onValueChange={(value) => {
+                setClient(value);
+                setProj('');
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Pick client" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_CLIENT}>Internal (no client)</SelectItem>
+                {clients.map((clientOption) => (
+                  <SelectItem key={clientOption.id} value={clientOption.id}>
+                    {clientOption.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Project</Label>
+            <Select value={proj} onValueChange={setProj} disabled={!client}>
+              <SelectTrigger>
+                <SelectValue placeholder={client ? 'Pick project' : 'Pick a client first'} />
+              </SelectTrigger>
+              <SelectContent>
+                {filteredProjects.length === 0 ? (
+                  <div className="px-3 py-2 text-[12px] text-[var(--color-fg-dim)]">
+                    No projects for this client
+                  </div>
+                ) : (
+                  filteredProjects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.title}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      ) : !lockProjectPicker ? (
         <div className="space-y-1.5">
           <Label>Project</Label>
           <Select value={proj} onValueChange={setProj}>
@@ -79,47 +183,58 @@ export function TaskForm({
               <SelectValue placeholder="Pick project" />
             </SelectTrigger>
             <SelectContent>
-              {projects.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.title}
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.title}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
       ) : null}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label>Assignee</Label>
-          <Select value={assignee} onValueChange={setAssignee}>
-            <SelectTrigger>
-              <SelectValue placeholder="Unassigned" />
-            </SelectTrigger>
-            <SelectContent>
-              {users.map((u) => (
-                <SelectItem key={u.id} value={u.id}>
-                  {u.full_name || u.email}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Reviewer (approver)</Label>
-          <Select value={reviewer} onValueChange={setReviewer}>
-            <SelectTrigger>
-              <SelectValue placeholder="No review required" />
-            </SelectTrigger>
-            <SelectContent>
-              {users.map((u) => (
-                <SelectItem key={u.id} value={u.id}>
-                  {u.full_name || u.email}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+
+      <div className="space-y-1.5">
+        <Label>Reviewer · the manager who owns the outcome</Label>
+        <Select value={reviewer} onValueChange={setReviewer}>
+          <SelectTrigger>
+            <SelectValue
+              placeholder={
+                proj
+                  ? 'Pick a division lead / executive reviewer'
+                  : 'Pick a project first to see the right reviewers'
+              }
+            />
+          </SelectTrigger>
+          <SelectContent>
+            {reviewerOptions.map((user) => (
+              <SelectItem key={user.id} value={user.id}>
+                {(user.full_name || user.email) + ' · ' + user.role}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-[11px] text-[var(--color-fg-dim)]">
+          Reviewer options stay scoped to the highest people in the selected division.
+        </p>
       </div>
+
+      <div className="space-y-1.5">
+        <Label>Assignee · optional, reviewer can choose later</Label>
+        <Select value={assignee} onValueChange={setAssignee}>
+          <SelectTrigger>
+            <SelectValue placeholder="Leave for reviewer to assign" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={UNASSIGNED}>Leave for reviewer to assign</SelectItem>
+            {users.map((user) => (
+              <SelectItem key={user.id} value={user.id}>
+                {user.full_name || user.email}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label>Priority</Label>
@@ -128,9 +243,9 @@ export function TaskForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {['low', 'normal', 'high', 'urgent'].map((s) => (
-                <SelectItem key={s} value={s} className="capitalize">
-                  {s}
+              {['low', 'normal', 'high', 'urgent'].map((value) => (
+                <SelectItem key={value} value={value} className="capitalize">
+                  {value}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -146,10 +261,9 @@ export function TaskForm({
           />
         </div>
       </div>
+
       <div className="flex justify-end">
-        <Button disabled={pending}>
-          {pending ? 'Saving...' : existing ? 'Save' : 'Create task'}
-        </Button>
+        <Button disabled={pending}>{pending ? 'Saving...' : existing ? 'Save' : 'Create task'}</Button>
       </div>
     </form>
   );

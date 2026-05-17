@@ -16,7 +16,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-9 w-full items-center justify-between rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-1 text-sm text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]',
+      'flex h-9 w-full items-center justify-between rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 py-1 text-sm text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition',
       className
     )}
     {...props}
@@ -38,7 +38,7 @@ const SelectContent = React.forwardRef<
       ref={ref}
       position={position}
       className={cn(
-        'relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-fg)] shadow-xl',
+        'relative z-50 min-w-[8rem] overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-fg)] shadow-[0_8px_24px_rgba(0,0,0,0.08)]',
         className
       )}
       {...props}
@@ -56,7 +56,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--color-surface-3)] data-[state=checked]:text-[var(--color-accent)]',
+      'relative flex w-full cursor-pointer select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--color-surface-3)] data-[state=checked]:text-[var(--color-accent)]',
       className
     )}
     {...props}

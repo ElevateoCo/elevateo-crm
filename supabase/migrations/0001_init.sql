@@ -1,4 +1,4 @@
--- Soarx CRM: full schema, RLS, helper functions, seed.
+-- Elevateoco CRM: full schema, RLS, helper functions, seed.
 -- Apply this once in the Supabase SQL editor or via `supabase db push`.
 
 create extension if not exists "pgcrypto";

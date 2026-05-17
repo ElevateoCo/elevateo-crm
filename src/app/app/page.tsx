@@ -1,5 +1,13 @@
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, ShieldCheck, AlarmClock, Activity } from 'lucide-react';
+import {
+  Activity,
+  AlarmClock,
+  ArrowRight,
+  CalendarDays,
+  CheckSquare,
+  PhoneCall,
+  ShieldCheck,
+} from 'lucide-react';
 import { PageHeader } from '@/components/shell/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,8 +22,11 @@ import {
   requireCurrentUser,
 } from '@/lib/queries';
 import { divisionTone, projectStatusLabel, projectStatusTone } from '@/lib/formatters';
+import type { ActivityLogEntry, Project, Task } from '@/lib/supabase/types';
 
-export default async function DashboardPage() {
+const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+export default async function CommandCenterPage() {
   const { profile } = await requireCurrentUser();
   const [myTasks, pendingApprovals, projects, users, divisions] = await Promise.all([
     getTasks({ assignedTo: profile.id }),
@@ -25,21 +36,24 @@ export default async function DashboardPage() {
     getDivisions(),
   ]);
 
-  const userMap = new Map(users.map((u) => [u.id, u]));
-  const divMap = new Map(divisions.map((d) => [d.id, d]));
-  const projectMap = new Map(projects.map((p) => [p.id, p]));
+  const userMap = new Map(users.map((user) => [user.id, user]));
+  const divMap = new Map(divisions.map((division) => [division.id, division]));
+  const projectMap = new Map(projects.map((project) => [project.id, project]));
 
-  const activeTasks = myTasks.filter((t) => t.status !== 'done');
+  const activeTasks = myTasks.filter((task) => task.status !== 'done');
   const overdue = activeTasks.filter(
-    (t) => t.deadline && new Date(t.deadline) < new Date()
+    (task) => task.deadline && new Date(task.deadline).getTime() < Date.now()
   );
-  const reviewQueueTaskIds = pendingApprovals.map((a) => a.task_id);
+
+  const reviewQueueTaskIds = pendingApprovals.map((approval) => approval.task_id);
   const supabase = await createClient();
   const { data: reviewQueueTasks } = reviewQueueTaskIds.length
     ? await supabase.from('tasks').select('*').in('id', reviewQueueTaskIds)
     : { data: [] };
 
-  const activeProjects = projects.filter((p) => p.status === 'active' || p.status === 'review');
+  const activeProjects = projects.filter(
+    (project) => project.status === 'active' || project.status === 'review'
+  );
 
   const { data: recentActivity } = await supabase
     .from('activity_log')
@@ -47,14 +61,50 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
     .limit(10);
 
+  const dueSoonProjects = activeProjects
+    .filter((project) => project.due_date)
+    .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())
+    .slice(0, 4);
+
+  const projectsByDivision = divisions
+    .map((division) => ({
+      division,
+      count: activeProjects.filter((project) => project.division_id === division.id).length,
+    }))
+    .filter((entry) => entry.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  const now = new Date();
+  const dueCounts = new Map<number, number>();
+  for (const task of activeTasks) {
+    if (!task.deadline) continue;
+    const dueDate = new Date(task.deadline);
+    if (dueDate.getMonth() !== now.getMonth() || dueDate.getFullYear() !== now.getFullYear()) {
+      continue;
+    }
+    dueCounts.set(dueDate.getDate(), (dueCounts.get(dueDate.getDate()) ?? 0) + 1);
+  }
+  for (const project of activeProjects) {
+    if (!project.due_date) continue;
+    const dueDate = new Date(project.due_date);
+    if (dueDate.getMonth() !== now.getMonth() || dueDate.getFullYear() !== now.getFullYear()) {
+      continue;
+    }
+    dueCounts.set(dueDate.getDate(), (dueCounts.get(dueDate.getDate()) ?? 0) + 1);
+  }
+
+  const coldCallGoal = profile.cold_call_goal ?? 40;
+  const coldCallProgress = 0;
+  const calendarDays = buildCalendarDays(now, dueCounts);
+
   return (
     <div className="min-h-full flex flex-col">
       <PageHeader
-        title={`Hey ${profile.full_name.split(' ')[0] || 'there'} —`}
-        description="Your war room overview. Approvals first, then your queue, then the field."
+        title="Command Center"
+        description={`${profile.full_name.split(' ')[0] || 'Team'}, approvals, delivery, and project load in one place.`}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 p-6 pb-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 p-7 pb-3">
         <Stat
           icon={ShieldCheck}
           label="Pending approvals"
@@ -75,77 +125,17 @@ export default async function DashboardPage() {
           tone={overdue.length ? 'danger' : 'default'}
           href="/app/tasks?filter=overdue"
         />
-        <Stat
-          icon={Activity}
-          label="Active projects"
-          value={activeProjects.length}
-          href="/app/projects"
-        />
+        <ProjectStat count={activeProjects.length} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 px-6 pb-6">
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>Awaiting your approval</CardTitle>
-            <Link href="/app/approvals" className="text-[11px] text-[var(--color-fg-muted)] inline-flex items-center gap-1">
-              All approvals <ArrowRight className="h-3 w-3" />
-            </Link>
-          </CardHeader>
-          <div>
-            {(reviewQueueTasks ?? []).length === 0 ? (
-              <Empty message="Inbox zero. Nothing waiting on your signoff." />
-            ) : (
-              (reviewQueueTasks ?? []).map((t) => {
-                const project = projectMap.get(t.project_id);
-                return (
-                  <TaskRow
-                    key={t.id}
-                    task={t as any}
-                    users={userMap}
-                    showProject={project?.title}
-                  />
-                );
-              })
-            )}
-          </div>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Active projects</CardTitle>
-          </CardHeader>
-          <div>
-            {activeProjects.length === 0 ? (
-              <Empty message="No active projects yet." />
-            ) : (
-              activeProjects.slice(0, 6).map((p) => {
-                const div = p.division_id ? divMap.get(p.division_id) : null;
-                return (
-                  <Link
-                    key={p.id}
-                    href={`/app/projects/${p.id}`}
-                    className="block px-4 py-2.5 border-b border-[var(--color-border)] hover:bg-[var(--color-surface-2)] transition"
-                  >
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <div className="text-sm font-medium truncate">{p.title}</div>
-                      <Badge tone={projectStatusTone[p.status]}>{projectStatusLabel[p.status]}</Badge>
-                    </div>
-                    {div ? (
-                      <Badge tone={divisionTone[div.code] as any}>{div.name}</Badge>
-                    ) : null}
-                  </Link>
-                );
-              })
-            )}
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 px-6 pb-10">
-        <Card className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 px-7 pb-3">
+        <Card className="lg:col-span-2 overflow-hidden">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>My tasks</CardTitle>
-            <Link href="/app/tasks" className="text-[11px] text-[var(--color-fg-muted)] inline-flex items-center gap-1">
+            <Link
+              href="/app/tasks"
+              className="text-[12px] text-[var(--color-fg-muted)] inline-flex items-center gap-1 hover:text-[var(--color-accent)]"
+            >
               Open tasks <ArrowRight className="h-3 w-3" />
             </Link>
           </CardHeader>
@@ -153,12 +143,12 @@ export default async function DashboardPage() {
             {activeTasks.length === 0 ? (
               <Empty message="No tasks assigned to you." />
             ) : (
-              activeTasks.slice(0, 8).map((t) => {
-                const project = projectMap.get(t.project_id);
+              activeTasks.slice(0, 8).map((task) => {
+                const project = projectMap.get(task.project_id);
                 return (
                   <TaskRow
-                    key={t.id}
-                    task={t}
+                    key={task.id}
+                    task={task}
                     users={userMap}
                     showProject={project?.title}
                   />
@@ -168,22 +158,66 @@ export default async function DashboardPage() {
           </div>
         </Card>
 
+        <div className="space-y-3">
+          <ColdCallerCard goal={coldCallGoal} progress={coldCallProgress} />
+          <ProjectSnapshotCard
+            activeProjects={activeProjects}
+            dueSoonProjects={dueSoonProjects}
+            projectsByDivision={projectsByDivision}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 px-7 pb-3">
+        <Card className="lg:col-span-2 overflow-hidden">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle>Awaiting your approval</CardTitle>
+            <Link
+              href="/app/approvals"
+              className="text-[12px] text-[var(--color-fg-muted)] inline-flex items-center gap-1 hover:text-[var(--color-accent)]"
+            >
+              All approvals <ArrowRight className="h-3 w-3" />
+            </Link>
+          </CardHeader>
+          <div>
+            {((reviewQueueTasks ?? []) as Task[]).length === 0 ? (
+              <Empty message="All clear - nothing waiting on your signoff." />
+            ) : (
+              ((reviewQueueTasks ?? []) as Task[]).map((task) => {
+                const project = projectMap.get(task.project_id);
+                return (
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    users={userMap}
+                    showProject={project?.title}
+                  />
+                );
+              })
+            )}
+          </div>
+        </Card>
+
+        <CalendarCard days={calendarDays} />
+      </div>
+
+      <div className="px-7 pb-10">
         <Card>
           <CardHeader>
             <CardTitle>Recent activity</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {(recentActivity ?? []).length === 0 ? (
+            {((recentActivity ?? []) as ActivityLogEntry[]).length === 0 ? (
               <Empty message="No activity yet." inline />
             ) : (
-              (recentActivity ?? []).map((a) => {
-                const actor = a.actor_id ? userMap.get(a.actor_id) : null;
+              ((recentActivity ?? []) as ActivityLogEntry[]).map((entry) => {
+                const actor = entry.actor_id ? userMap.get(entry.actor_id) : null;
                 return (
-                  <div key={a.id} className="text-xs text-[var(--color-fg-muted)]">
+                  <div key={entry.id} className="text-[12px] text-[var(--color-fg-muted)]">
                     <span className="text-[var(--color-fg)] font-medium">
                       {actor?.full_name ?? 'Someone'}
                     </span>{' '}
-                    {a.action}
+                    {entry.action}
                   </div>
                 );
               })
@@ -213,21 +247,27 @@ function Stat({
   return (
     <Link
       href={href}
-      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 hover:bg-[var(--color-surface-2)] transition"
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
     >
       <div className="flex items-center justify-between mb-2">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
-          {label}
-        </div>
+        <div className="text-[12px] font-medium text-[var(--color-fg-muted)]">{label}</div>
         <Icon
-          className={`h-3.5 w-3.5 ${
-            accent ? 'text-[var(--color-accent)]' : tone === 'danger' && value > 0 ? 'text-red-300' : 'text-[var(--color-fg-dim)]'
+          className={`h-4 w-4 ${
+            accent && value > 0
+              ? 'text-[var(--color-accent)]'
+              : tone === 'danger' && value > 0
+                ? 'text-[var(--color-danger)]'
+                : 'text-[var(--color-fg-dim)]'
           }`}
         />
       </div>
       <div
-        className={`text-2xl font-bold tabular-nums ${
-          tone === 'danger' && value > 0 ? 'text-red-300' : accent && value > 0 ? 'text-[var(--color-accent)]' : ''
+        className={`text-[28px] font-semibold tabular-nums tracking-tight ${
+          tone === 'danger' && value > 0
+            ? 'text-[var(--color-danger)]'
+            : accent && value > 0
+              ? 'text-[var(--color-accent)]'
+              : ''
         }`}
       >
         {value}
@@ -236,10 +276,226 @@ function Stat({
   );
 }
 
+function ProjectStat({ count }: { count: number }) {
+  return (
+    <Link
+      href="/app/projects"
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-[12px] font-medium text-[var(--color-fg-muted)]">Portfolio load</div>
+        <Activity className="h-4 w-4 text-[var(--color-fg-dim)]" />
+      </div>
+      <div className="text-[19px] font-semibold leading-tight text-[var(--color-fg)]">
+        Currently managing {count} projects
+      </div>
+    </Link>
+  );
+}
+
+function ColdCallerCard({ goal, progress }: { goal: number; progress: number }) {
+  const percent = goal > 0 ? Math.min(100, Math.round((progress / goal) * 100)) : 0;
+
+  return (
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <CardTitle>Cold caller</CardTitle>
+        <PhoneCall className="h-4 w-4 text-[var(--color-fg-dim)]" />
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div>
+          <div className="text-[20px] font-semibold">
+            {progress} / {goal}
+          </div>
+          <div className="text-[12px] text-[var(--color-fg-muted)]">
+            Today&apos;s cold calling progress vs goal
+          </div>
+        </div>
+        <div className="h-2 rounded-full bg-[var(--color-surface-3)] overflow-hidden">
+          <div
+            className="h-full rounded-full bg-[var(--color-accent)] transition-[width]"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between text-[11px] text-[var(--color-fg-dim)]">
+          <span>Placeholder until call data is connected.</span>
+          <Link href="/app/settings" className="text-[var(--color-accent)] hover:underline">
+            Set goal
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ProjectSnapshotCard({
+  activeProjects,
+  dueSoonProjects,
+  projectsByDivision,
+}: {
+  activeProjects: Project[];
+  dueSoonProjects: Project[];
+  projectsByDivision: Array<{
+    division: { id: string; code: string; name: string };
+    count: number;
+  }>;
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <CardTitle>Project snapshot</CardTitle>
+        <Link href="/app/projects" className="text-[12px] text-[var(--color-fg-muted)] hover:text-[var(--color-accent)]">
+          Open projects
+        </Link>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <div className="text-[20px] font-semibold text-[var(--color-fg)]">
+            Currently managing {activeProjects.length} projects
+          </div>
+          <div className="text-[12px] text-[var(--color-fg-muted)]">
+            Breakdown first, due-soon pressure second.
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
+          {projectsByDivision.length === 0 ? (
+            <span className="text-[12px] text-[var(--color-fg-dim)]">No active projects yet.</span>
+          ) : (
+            projectsByDivision.slice(0, 5).map((entry) => (
+              <Badge key={entry.division.id} tone={divisionTone[entry.division.code as keyof typeof divisionTone] as never}>
+                {entry.division.name} - {entry.count}
+              </Badge>
+            ))
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
+            Due soon
+          </div>
+          {dueSoonProjects.length === 0 ? (
+            <div className="text-[12px] text-[var(--color-fg-dim)]">No upcoming project due dates.</div>
+          ) : (
+            dueSoonProjects.map((project) => (
+              <Link
+                key={project.id}
+                href={`/app/projects/${project.id}`}
+                className="flex items-center justify-between gap-2 rounded-lg border border-[var(--color-border)] px-3 py-2 hover:bg-[var(--color-surface-3)]/60"
+              >
+                <div className="min-w-0">
+                  <div className="truncate text-[13px] font-medium">{project.title}</div>
+                  <div className="text-[11px] text-[var(--color-fg-dim)]">
+                    Due {formatShortDate(project.due_date)}
+                  </div>
+                </div>
+                <Badge tone={projectStatusTone[project.status]}>
+                  {projectStatusLabel[project.status]}
+                </Badge>
+              </Link>
+            ))
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function CalendarCard({ days }: { days: CalendarDay[] }) {
+  return (
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <CardTitle>Calendar</CardTitle>
+        <CalendarDays className="h-4 w-4 text-[var(--color-fg-dim)]" />
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)]">
+          {WEEKDAY_LABELS.map((label) => (
+            <div key={label}>{label}</div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((day, index) => (
+            <div
+              key={`${day.dateKey}-${index}`}
+              className={`min-h-[64px] rounded-xl border px-2 py-1.5 ${
+                day.inMonth
+                  ? 'border-[var(--color-border)] bg-[var(--color-surface)]'
+                  : 'border-transparent bg-[var(--color-surface-2)]/60 text-[var(--color-fg-dim)]'
+              } ${day.isToday ? 'ring-1 ring-[var(--color-accent)]' : ''}`}
+            >
+              <div className="text-[11px] font-medium">{day.day}</div>
+              {day.dueCount > 0 ? (
+                <div className="mt-2 inline-flex rounded-full bg-[var(--color-accent)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">
+                  {day.dueCount} due
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+        <div className="text-[11px] text-[var(--color-fg-dim)]">
+          Counts reflect your active task deadlines and active project due dates this month.
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function Empty({ message, inline }: { message: string; inline?: boolean }) {
   return (
-    <div className={inline ? 'text-xs text-[var(--color-fg-dim)]' : 'px-4 py-8 text-xs text-[var(--color-fg-dim)] text-center'}>
+    <div
+      className={
+        inline
+          ? 'text-[12px] text-[var(--color-fg-dim)]'
+          : 'px-5 py-10 text-[13px] text-[var(--color-fg-dim)] text-center'
+      }
+    >
       {message}
     </div>
   );
+}
+
+interface CalendarDay {
+  dateKey: string;
+  day: number;
+  dueCount: number;
+  inMonth: boolean;
+  isToday: boolean;
+}
+
+function buildCalendarDays(now: Date, dueCounts: Map<number, number>): CalendarDay[] {
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const startOffset = (firstOfMonth.getDay() + 6) % 7;
+  const startDate = new Date(year, month, 1 - startOffset);
+  const days: CalendarDay[] = [];
+
+  for (let index = 0; index < 35; index += 1) {
+    const current = new Date(startDate);
+    current.setDate(startDate.getDate() + index);
+    const inMonth = current.getMonth() === month;
+    const isToday =
+      current.getFullYear() === now.getFullYear() &&
+      current.getMonth() === now.getMonth() &&
+      current.getDate() === now.getDate();
+
+    days.push({
+      dateKey: current.toISOString(),
+      day: current.getDate(),
+      dueCount: inMonth ? dueCounts.get(current.getDate()) ?? 0 : 0,
+      inMonth,
+      isToday,
+    });
+  }
+
+  return days;
+}
+
+function formatShortDate(value: string | null) {
+  if (!value) return '-';
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(value));
 }

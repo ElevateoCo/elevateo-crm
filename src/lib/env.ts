@@ -1,12 +1,11 @@
+// Local-mode app: storage lives on disk in .data/elevateoco.json.
+// SUPABASE_CONFIGURED stays true so guards in pages always pass through.
 export const env = {
-  SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-  SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+  SUPABASE_URL: 'local',
+  SUPABASE_ANON_KEY: 'local',
+  SUPABASE_CONFIGURED: true,
 };
 
 export function assertSupabaseEnv() {
-  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-    throw new Error(
-      'Missing Supabase env. Copy .env.local.example to .env.local and fill in your project URL + anon key.'
-    );
-  }
+  // No-op in local mode. When swapping to real Supabase, enforce env again here.
 }

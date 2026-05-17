@@ -14,6 +14,8 @@ import {
 import { TaskForm } from './task-form';
 import {
   getAllUsers,
+  getClients,
+  getDivisions,
   getProjects,
   getTasks,
   requireCurrentUser,
@@ -27,9 +29,11 @@ export default async function TasksPage({
   const { filter, project } = await searchParams;
   const { profile } = await requireCurrentUser();
 
-  const [users, projects, all] = await Promise.all([
+  const [users, projects, clients, divisions, all] = await Promise.all([
     getAllUsers(),
     getProjects(),
+    getClients(),
+    getDivisions(),
     getTasks({ projectId: project }),
   ]);
 
@@ -70,7 +74,12 @@ export default async function TasksPage({
               <DialogHeader>
                 <DialogTitle>New task</DialogTitle>
               </DialogHeader>
-              <TaskForm projects={projects} users={users} />
+              <TaskForm
+                projects={projects}
+                clients={clients}
+                users={users}
+                divisions={divisions}
+              />
             </DialogContent>
           </Dialog>
         }

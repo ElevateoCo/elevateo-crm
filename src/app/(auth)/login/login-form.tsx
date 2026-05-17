@@ -9,11 +9,18 @@ import { signIn, type AuthState } from './actions';
 export function LoginForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState<AuthState, FormData>(signIn, undefined);
   return (
-    <form action={action} className="space-y-3">
+    <form action={action} className="space-y-4">
       {next ? <input type="hidden" name="next" value={next} /> : null}
       <div className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@elevateoco.com"
+          required
+        />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="password">Password</Label>
@@ -22,16 +29,17 @@ export function LoginForm({ next }: { next?: string }) {
           name="password"
           type="password"
           autoComplete="current-password"
+          placeholder="At least 6 characters"
           minLength={6}
           required
         />
       </div>
       {state?.error ? (
-        <div className="rounded-md border border-red-500/40 bg-red-500/10 text-red-300 text-xs px-3 py-2">
+        <div className="rounded-lg border border-red-200 bg-red-50 text-red-700 text-[12px] px-3 py-2">
           {state.error}
         </div>
       ) : null}
-      <Button className="w-full" disabled={pending}>
+      <Button className="w-full" size="lg" disabled={pending}>
         {pending ? 'Signing in...' : 'Sign in'}
       </Button>
     </form>

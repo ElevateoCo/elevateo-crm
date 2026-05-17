@@ -19,6 +19,7 @@ import { CommentList } from './comments';
 import { createClient } from '@/lib/supabase/server';
 import {
   getAllUsers,
+  getDivisions,
   getProject,
   getProjects,
   getTask,
@@ -45,12 +46,13 @@ export default async function TaskDetailPage({
   if (!task) notFound();
 
   const supabase = await createClient();
-  const [project, users, comments, projects, { data: approvals }, { data: activity }] =
+  const [project, users, comments, projects, divisions, { data: approvals }, { data: activity }] =
     await Promise.all([
       getProject(task.project_id),
       getAllUsers(),
       getTaskComments(task.id),
       getProjects(),
+      getDivisions(),
       supabase
         .from('approvals')
         .select('*')
@@ -118,7 +120,12 @@ export default async function TaskDetailPage({
                 <DialogHeader>
                   <DialogTitle>Edit task</DialogTitle>
                 </DialogHeader>
-                <TaskForm projects={projects} users={users} existing={task} />
+                <TaskForm
+                  projects={projects}
+                  users={users}
+                  divisions={divisions}
+                  existing={task}
+                />
               </DialogContent>
             </Dialog>
           </>
@@ -210,6 +217,7 @@ export default async function TaskDetailPage({
                 isAssignee={isAssignee}
                 isReviewer={isReviewer}
                 openApproval={openApproval}
+                users={users}
               />
               {approvalRows.length > 0 ? (
                 <div className="mt-3 space-y-2">

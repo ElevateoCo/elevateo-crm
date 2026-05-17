@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { decideApproval, moveTaskStatus, submitForReview } from '../actions';
-import type { Approval, Task } from '@/lib/supabase/types';
+import { assignTask, decideApproval, moveTaskStatus, submitForReview } from '../actions';
+import type { Approval, Task, User } from '@/lib/supabase/types';
 import { taskStatusLabel } from '@/lib/formatters';
 
 export function TaskActions({
@@ -21,11 +21,13 @@ export function TaskActions({
   isAssignee,
   isReviewer,
   openApproval,
+  users,
 }: {
   task: Task;
   isAssignee: boolean;
   isReviewer: boolean;
   openApproval: Approval | null;
+  users: User[];
 }) {
   const [pending, start] = useTransition();
   const [note, setNote] = useState('');
@@ -39,6 +41,33 @@ export function TaskActions({
       if (r?.error) toast.error(r.error);
       else toast.success('Done');
     });
+  }
+
+  // Reviewer-first workflow: when there's no assignee, the reviewer picks one.
+  if (isReviewer && !task.assigned_to) {
+    return (
+      <div className="space-y-2">
+        <div className="text-xs text-[var(--color-fg-muted)]">
+          You are the reviewer. Pick who actually works on this — they'll be notified.
+        </div>
+        <Select
+          onValueChange={(v) => {
+            call(assignTask(task.id, v));
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Assign to..." />
+          </SelectTrigger>
+          <SelectContent>
+            {users.map((u) => (
+              <SelectItem key={u.id} value={u.id}>
+                {u.full_name || u.email}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
   }
 
   if (isReviewer && openApproval) {

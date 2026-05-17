@@ -3,18 +3,18 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider',
+  'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium',
   {
     variants: {
       tone: {
-        default: 'border-[var(--color-border-strong)] bg-[var(--color-surface-2)] text-[var(--color-fg-muted)]',
-        accent: 'border-[var(--color-accent)] bg-orange-500/10 text-[var(--color-accent)]',
-        success: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
-        warning: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
-        danger: 'border-red-500/40 bg-red-500/10 text-red-300',
-        info: 'border-sky-500/40 bg-sky-500/10 text-sky-300',
-        violet: 'border-violet-500/40 bg-violet-500/10 text-violet-300',
-        pink: 'border-pink-500/40 bg-pink-500/10 text-pink-300',
+        default: 'bg-[var(--color-surface-3)] text-[var(--color-fg-muted)]',
+        accent: 'bg-[var(--color-accent-soft)] text-[var(--color-accent)]',
+        success: 'bg-emerald-50 text-emerald-700',
+        warning: 'bg-amber-50 text-amber-700',
+        danger: 'bg-red-50 text-red-700',
+        info: 'bg-sky-50 text-sky-700',
+        violet: 'bg-violet-50 text-violet-700',
+        pink: 'bg-pink-50 text-pink-700',
       },
     },
     defaultVariants: { tone: 'default' },

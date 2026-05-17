@@ -115,6 +115,7 @@ export default async function ProjectDetailPage({
                   projectId={project.id}
                   projects={[project]}
                   users={users}
+                  divisions={divisions}
                 />
               </DialogContent>
             </Dialog>

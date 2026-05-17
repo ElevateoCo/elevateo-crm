@@ -32,6 +32,18 @@ export function ProfileForm({ profile }: { profile: User }) {
         <Label htmlFor="avatar_url">Avatar URL</Label>
         <Input id="avatar_url" name="avatar_url" defaultValue={profile.avatar_url ?? ''} />
       </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="cold_call_goal">Cold call goal · daily</Label>
+        <Input
+          id="cold_call_goal"
+          name="cold_call_goal"
+          type="number"
+          min={0}
+          max={500}
+          defaultValue={profile.cold_call_goal ?? 40}
+          required
+        />
+      </div>
       <Button disabled={pending}>{pending ? 'Saving...' : 'Save'}</Button>
     </form>
   );

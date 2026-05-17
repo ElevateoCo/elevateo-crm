@@ -10,24 +10,8 @@ import {
   getUnreadNotificationCount,
   getPendingApprovalsForUser,
 } from '@/lib/queries';
-import { env } from '@/lib/env';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="max-w-md text-center">
-          <h2 className="text-lg font-semibold mb-2">Supabase env missing</h2>
-          <p className="text-sm text-[var(--color-fg-muted)]">
-            Copy <code className="font-mono text-xs">.env.local.example</code> to{' '}
-            <code className="font-mono text-xs">.env.local</code> and fill in your Supabase project URL
-            and anon key, then restart the dev server.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   const session = await getCurrentUser();
   if (!session) redirect('/login');
 

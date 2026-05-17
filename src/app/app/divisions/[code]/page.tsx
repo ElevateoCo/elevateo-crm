@@ -42,7 +42,12 @@ export default async function DivisionPage({
       ),
   ]);
 
-  const divUsers = users.filter((u) => u.division_id === division.id);
+  // Anyone tagged with this division (via either primary or multi-division array).
+  const divUsers = users.filter(
+    (u) =>
+      u.division_id === division.id ||
+      (u.divisions ?? []).includes(division.code as never)
+  );
   const userMap = new Map(users.map((u) => [u.id, u]));
 
   return (

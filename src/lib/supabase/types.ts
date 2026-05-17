@@ -45,7 +45,11 @@ export interface User {
   email: string;
   full_name: string;
   avatar_url: string | null;
+  cold_call_goal: number;
+  /** Primary division — drives sidebar / default filtering / division lists. */
   division_id: string | null;
+  /** Full set of divisions this person works across (includes the primary). */
+  divisions: DivisionCode[];
   manager_id: string | null;
   role: UserRole;
   is_active: boolean;

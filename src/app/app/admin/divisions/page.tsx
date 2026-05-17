@@ -26,7 +26,11 @@ export default async function AdminDivisionsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-6">
         {divisions.map((d) => {
           const owner = d.owner_id ? userMap.get(d.owner_id) : null;
-          const headcount = users.filter((u) => u.division_id === d.id).length;
+          const headcount = users.filter(
+            (u) =>
+              u.division_id === d.id ||
+              (u.divisions ?? []).includes(d.code)
+          ).length;
           return (
             <Card key={d.id} className="p-4">
               <div className="flex items-center justify-between mb-3">

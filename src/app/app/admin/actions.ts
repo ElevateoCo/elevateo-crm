@@ -13,6 +13,12 @@ const UserPatch = z.object({
   is_active: z.string().optional(), // checkbox sends "on"
 });
 
+const ADMIN_GRANTOR_EMAILS = new Set([
+  'allan.chan@elevateoco.com',
+  'arnis@elevateoco.com',
+  'hazem.dweik@elevateoco.com',
+]);
+
 export async function updateUserAdmin(id: string, formData: FormData) {
   const { profile } = await requireCurrentUser();
   const raw = Object.fromEntries(formData.entries());
@@ -20,6 +26,17 @@ export async function updateUserAdmin(id: string, formData: FormData) {
   if (!parsed.success) return { error: 'Invalid input' };
 
   const supabase = await createClient();
+  const { data: divisions } = await supabase.from('divisions').select('id, code');
+  const adminDivisionId = (divisions ?? []).find((division) => division.code === 'admin')?.id;
+  const isGrantor = ADMIN_GRANTOR_EMAILS.has(profile.email.toLowerCase());
+  const isGrantingAdminPrivilege =
+    parsed.data.role === 'owner' ||
+    (!!adminDivisionId && parsed.data.division_id === adminDivisionId);
+
+  if (isGrantingAdminPrivilege && !isGrantor) {
+    return { error: 'Only Allan, Arnis, or Hazem can grant admin privileges.' };
+  }
+
   const { error } = await supabase
     .from('users')
     .update({

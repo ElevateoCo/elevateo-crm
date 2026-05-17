@@ -4,10 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { UserPill } from '@/components/shared/user-pill';
 import { getAllUsers, getDivisions } from '@/lib/queries';
 import { divisionTone, roleLabel } from '@/lib/formatters';
+import type { DivisionCode } from '@/lib/supabase/types';
 
 export default async function PeoplePage() {
   const [users, divisions] = await Promise.all([getAllUsers(), getDivisions()]);
   const divMap = new Map(divisions.map((d) => [d.id, d]));
+  const divByCode = new Map(divisions.map((d) => [d.code, d]));
   const userMap = new Map(users.map((u) => [u.id, u]));
 
   return (
@@ -19,30 +21,42 @@ export default async function PeoplePage() {
 
       <div className="p-6">
         <Card>
-          <div className="grid grid-cols-[1fr_140px_140px_180px_60px] text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)] px-4 py-2 border-b border-[var(--color-border)]">
+          <div className="grid grid-cols-[1fr_140px_1fr_180px_60px] text-[11px] font-medium text-[var(--color-fg-dim)] px-4 py-2.5 border-b border-[var(--color-border)]">
             <div>Name</div>
             <div>Role</div>
-            <div>Division</div>
+            <div>Divisions</div>
             <div>Reports to</div>
             <div className="text-right">Status</div>
           </div>
           {users.map((u) => {
-            const div = u.division_id ? divMap.get(u.division_id) : null;
+            const tags: DivisionCode[] =
+              u.divisions && u.divisions.length
+                ? u.divisions
+                : u.division_id && divMap.get(u.division_id)
+                ? [divMap.get(u.division_id)!.code]
+                : [];
             const manager = u.manager_id ? userMap.get(u.manager_id) : null;
             return (
               <div
                 key={u.id}
-                className="grid grid-cols-[1fr_140px_140px_180px_60px] items-center px-4 py-2.5 border-b border-[var(--color-border)]"
+                className="grid grid-cols-[1fr_140px_1fr_180px_60px] items-center px-4 py-2.5 border-b border-[var(--color-border)] last:border-0"
               >
                 <UserPill user={u} />
                 <div>
                   <Badge tone="default">{roleLabel[u.role]}</Badge>
                 </div>
-                <div>
-                  {div ? (
-                    <Badge tone={divisionTone[div.code] as any}>{div.name}</Badge>
-                  ) : (
+                <div className="flex flex-wrap gap-1">
+                  {tags.length === 0 ? (
                     <span className="text-[11px] text-[var(--color-fg-dim)]">—</span>
+                  ) : (
+                    tags.map((code) => {
+                      const d = divByCode.get(code);
+                      return d ? (
+                        <Badge key={code} tone={divisionTone[code] as any}>
+                          {d.name}
+                        </Badge>
+                      ) : null;
+                    })
                   )}
                 </div>
                 <div>
