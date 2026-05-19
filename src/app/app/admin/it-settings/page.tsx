@@ -2,11 +2,11 @@ import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/shell/page-header';
 import { Card } from '@/components/ui/card';
 import { getAllUsers, getDivisions, requireCurrentUser } from '@/lib/queries';
-import { ManagePeopleClient } from './manage-people-client';
+import { ItSettingsClient } from './it-settings-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminPeoplePage() {
+export default async function ItSettingsPage() {
   const { profile } = await requireCurrentUser();
   const divisions = await getDivisions();
   const adminDiv = divisions.find((d) => d.code === 'admin');
@@ -14,25 +14,20 @@ export default async function AdminPeoplePage() {
   if (!isAdmin) redirect('/app');
 
   const users = await getAllUsers();
-  const canGrantAdmin = [
-    'allan.chan@elevateoco.com',
-    'arnis.piekus@elevateoco.com',
-    'hazem.dweik@elevateoco.com',
-  ].includes(profile.email.toLowerCase());
 
   return (
     <div>
       <PageHeader
-        title="Manage people"
-        description="Set role, division, and manager. Sort and filter to find people fast."
+        title="IT settings"
+        description="Add and remove team members, reset passwords, change emails and names."
       />
 
       <div className="p-6">
         <Card className="p-4">
-          <ManagePeopleClient
+          <ItSettingsClient
             users={users}
             divisions={divisions}
-            canGrantAdmin={canGrantAdmin}
+            currentUserId={profile.id}
           />
         </Card>
       </div>

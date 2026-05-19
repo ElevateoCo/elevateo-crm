@@ -76,6 +76,7 @@ export const roleLabel: Record<UserRole, string> = {
   lead: 'Lead',
   member: 'Member',
   reservist: 'Reservist',
+  external: 'External',
 };
 
 export const approvalStatusTone: Record<ApprovalStatus, 'default' | 'success' | 'danger' | 'warning'> = {

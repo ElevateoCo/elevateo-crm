@@ -8,7 +8,7 @@ import type { Division } from '@/lib/supabase/types';
 
 const UserPatch = z.object({
   full_name: z.string().min(1).optional(),
-  role: z.enum(['owner', 'executive', 'lead', 'member', 'reservist']).optional(),
+  role: z.enum(['owner', 'executive', 'lead', 'member', 'reservist', 'external']).optional(),
   division_id: z.string().uuid().optional().or(z.literal('')),
   manager_id: z.string().uuid().optional().or(z.literal('')),
   is_active: z.string().optional(), // checkbox sends "on"

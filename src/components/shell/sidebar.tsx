@@ -18,6 +18,7 @@ import {
   BookOpen,
   PhoneOutgoing,
   ExternalLink,
+  Wrench,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -186,6 +187,18 @@ export function Sidebar({
               >
                 <FolderKanban className="h-4 w-4" />
                 Divisions
+              </Link>
+              <Link
+                href="/app/admin/it-settings"
+                className={cn(
+                  'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] transition',
+                  pathname?.startsWith('/app/admin/it-settings')
+                    ? 'bg-[var(--color-surface-3)] text-[var(--color-fg)] font-medium'
+                    : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)]'
+                )}
+              >
+                <Wrench className="h-4 w-4" />
+                IT settings
               </Link>
             </div>
           </div>

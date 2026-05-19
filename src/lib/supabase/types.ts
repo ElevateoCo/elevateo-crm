@@ -2,7 +2,7 @@
 // If the schema drifts, regenerate with `supabase gen types typescript`.
 
 export type DivisionCode = 'sales' | 'marketing' | 'technology' | 'ecommerce' | 'admin';
-export type UserRole = 'owner' | 'executive' | 'lead' | 'member' | 'reservist';
+export type UserRole = 'owner' | 'executive' | 'lead' | 'member' | 'reservist' | 'external';
 export type ClientStatus = 'prospect' | 'active' | 'paused' | 'archived';
 export type ProjectStatus =
   | 'planning'
@@ -45,6 +45,7 @@ export interface User {
   email: string;
   full_name: string;
   avatar_url: string | null;
+  skin_tone: string | null;
   cold_call_goal: number;
   /** Primary division — drives sidebar / default filtering / division lists. */
   division_id: string | null;

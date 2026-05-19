@@ -85,7 +85,7 @@ export function PersonEditor({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(['owner', 'executive', 'lead', 'member', 'reservist'] as const)
+                  {(['owner', 'executive', 'lead', 'member', 'reservist', 'external'] as const)
                     .filter((r) => canGrantAdmin || r !== 'owner')
                     .map((r) => (
                       <SelectItem key={r} value={r} className="capitalize">
