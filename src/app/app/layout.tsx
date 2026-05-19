@@ -3,6 +3,7 @@ import { Sidebar } from '@/components/shell/sidebar';
 import { TransitionFader } from '@/components/shell/transition-fader';
 import { ChameleonEasterEgg } from '@/components/shell/chameleon-easter-egg';
 import { HeartbeatLoop } from '@/components/shell/heartbeat-loop';
+import { ChatChime } from '@/components/shell/chat-chime';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <TransitionFader />
       <ChameleonEasterEgg />
       <HeartbeatLoop />
+      <ChatChime unread={chatUnread.total} />
     </div>
   );
 }

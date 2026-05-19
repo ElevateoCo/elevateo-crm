@@ -241,6 +241,18 @@ export function Sidebar({
                 <Megaphone className="h-4 w-4" />
                 Announcements
               </Link>
+              <Link
+                href="/app/admin/chat-rooms"
+                className={cn(
+                  'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] transition',
+                  pathname?.startsWith('/app/admin/chat-rooms')
+                    ? 'bg-[var(--color-surface-3)] text-[var(--color-fg)] font-medium'
+                    : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)]'
+                )}
+              >
+                <MessageCircle className="h-4 w-4" />
+                DM moderation
+              </Link>
             </div>
           </div>
         ) : null}
