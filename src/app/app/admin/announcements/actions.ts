@@ -70,10 +70,54 @@ export async function deleteAnnouncement(id: string) {
   if (gate.error) return { error: gate.error };
 
   const supabase = await createClient();
+  const { data: ann } = await supabase
+    .from('announcements')
+    .select('title, body')
+    .eq('id', id)
+    .maybeSingle();
+
   const { error } = await supabase.from('announcements').delete().eq('id', id);
   if (error) return { error: error.message };
 
+  if (ann) {
+    await supabase
+      .from('notifications')
+      .delete()
+      .eq('type', 'announcement')
+      .eq('title', (ann as { title: string }).title)
+      .eq('body', (ann as { body: string }).body);
+  }
+
   revalidatePath('/app/admin/announcements');
   revalidatePath('/app');
+  revalidatePath('/app/inbox');
   return { ok: true };
+}
+
+/**
+ * Nuclear option: wipe every announcement-type notification from every inbox.
+ * Useful for cleaning up test posts. Does NOT touch the announcements source
+ * table itself or any chat/task notifications.
+ */
+export async function clearAllAnnouncementNotifications() {
+  const gate = await assertAdmin();
+  if (gate.error) return { error: gate.error };
+
+  const supabase = await createClient();
+  const { error, count } = await supabase
+    .from('notifications')
+    .delete({ count: 'exact' })
+    .eq('type', 'announcement');
+  if (error) return { error: error.message };
+
+  await supabase.from('activity_log').insert({
+    entity_type: 'notification',
+    entity_id: gate.profile!.id,
+    actor_id: gate.profile!.id,
+    action: `cleared ${count ?? 0} announcement notifications from all inboxes`,
+  });
+
+  revalidatePath('/app/admin/announcements');
+  revalidatePath('/app/inbox');
+  return { ok: true, count: count ?? 0 };
 }
