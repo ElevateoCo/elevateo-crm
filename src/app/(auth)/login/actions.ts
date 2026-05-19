@@ -67,3 +67,21 @@ export async function signOut() {
   const params = firstName ? `?name=${encodeURIComponent(firstName)}` : '';
   redirect(`/farewell${params}`);
 }
+
+/**
+ * Sign out without redirecting. Used by client-side flows that want to play
+ * audio + run a client-side transition (router.push) without losing the
+ * audio context across a server redirect.
+ */
+export async function signOutSilent(): Promise<{ name: string }> {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  const meta = (userData.user?.user_metadata ?? {}) as { full_name?: string };
+  const firstName =
+    meta.full_name?.split(' ')[0] ||
+    userData.user?.email?.split('@')[0] ||
+    '';
+  await supabase.auth.signOut();
+  revalidatePath('/', 'layout');
+  return { name: firstName };
+}

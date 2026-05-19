@@ -11,6 +11,12 @@ const MessageSchema = z.object({
   body: z.string().min(1).max(4000),
 });
 
+function handleFromUser(u: { full_name: string | null; email: string }) {
+  const nameSlug = (u.full_name ?? '').toLowerCase().split(/\s+/).filter(Boolean).join('.');
+  const emailLocal = u.email.split('@')[0]?.toLowerCase() ?? '';
+  return { nameSlug, emailLocal };
+}
+
 export async function sendMessage(formData: FormData) {
   const { profile } = await requireCurrentUser();
   const parsed = MessageSchema.safeParse({
@@ -26,6 +32,41 @@ export async function sendMessage(formData: FormData) {
     body: parsed.data.body,
   });
   if (error) return { error: error.message };
+
+  // Resolve @handles to user IDs and notify them.
+  const handles = Array.from(parsed.data.body.matchAll(/@([\w.-]+)/g)).map((m) => m[1].toLowerCase());
+  if (handles.length) {
+    const { data: candidates } = await supabase
+      .from('users')
+      .select('id, full_name, email')
+      .eq('is_active', true);
+    const matched = new Map<string, string>(); // userId -> handle that matched
+    for (const cand of (candidates ?? []) as Array<{ id: string; full_name: string | null; email: string }>) {
+      const { nameSlug, emailLocal } = handleFromUser(cand);
+      for (const h of handles) {
+        if (cand.id === profile.id) continue; // don't ping yourself
+        if (
+          (nameSlug && (nameSlug === h || nameSlug.startsWith(h + '.'))) ||
+          (emailLocal && (emailLocal === h || emailLocal.startsWith(h + '.')))
+        ) {
+          if (!matched.has(cand.id)) matched.set(cand.id, h);
+        }
+      }
+    }
+    if (matched.size) {
+      const sender = profile.full_name || profile.email;
+      await supabase.from('notifications').insert(
+        Array.from(matched.keys()).map((uid) => ({
+          user_id: uid,
+          actor_id: profile.id,
+          type: 'chat_mention' as const,
+          title: `${sender} mentioned you`,
+          body: parsed.data.body.slice(0, 200),
+          link: `/app/chat/${parsed.data.room_id}`,
+        })),
+      );
+    }
+  }
 
   revalidatePath(`/app/chat/${parsed.data.room_id}`);
   return { ok: true };

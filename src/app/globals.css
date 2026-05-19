@@ -79,6 +79,8 @@ html, body {
   font-feature-settings: "ss01", "cv02", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Smooth the day/night swap so it doesn't snap harshly. */
+  transition: background-color 60s linear, color 60s linear;
 }
 
 * { border-color: var(--color-border); }

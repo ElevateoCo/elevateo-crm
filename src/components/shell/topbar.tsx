@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Bell, ChevronDown, LogOut, User as UserIcon } from 'lucide-react';
 import {
   DropdownMenu,
@@ -12,7 +13,7 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { signOut } from '@/app/(auth)/login/actions';
+import { signOutSilent } from '@/app/(auth)/login/actions';
 import { initials } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { roleLabel } from '@/lib/formatters';
@@ -28,12 +29,25 @@ export function Topbar({
   unread: number;
   latestType: string | null;
 }) {
+  const router = useRouter();
   const [signingOut, startSignOut] = useTransition();
 
   function handleSignOut() {
-    // The descender plays on /farewell — don't double up here.
+    // Play the descender now while the user gesture is fresh — it'll survive
+    // the client-side navigation to /farewell.
+    if (typeof window !== 'undefined' && localStorage.getItem('notify-sound-enabled') !== 'false') {
+      const audio = new Audio('/sounds/descender.mp3');
+      audio.volume = 0.3;
+      audio.play().catch(() => {});
+      try {
+        sessionStorage.setItem('descender-playing', String(Date.now()));
+      } catch {}
+    }
     startSignOut(async () => {
-      await signOut();
+      const { name } = await signOutSilent();
+      try { sessionStorage.setItem('transition-in', '1'); } catch {}
+      const params = name ? `?name=${encodeURIComponent(name)}` : '';
+      router.push(`/farewell${params}`);
     });
   }
   return (

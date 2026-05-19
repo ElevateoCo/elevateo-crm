@@ -18,6 +18,18 @@ export function FarewellAnimation({ name }: { name: string }) {
     if (!audio) return;
     audio.volume = 0.3;
 
+    // If the topbar already kicked off the descender during the sign-out click,
+    // don't double up. Window is 3s — anything older was a stale flag.
+    let alreadyStarted = false;
+    try {
+      const startedAt = Number(sessionStorage.getItem('descender-playing') ?? '0');
+      if (startedAt && Date.now() - startedAt < 3000) {
+        alreadyStarted = true;
+        sessionStorage.removeItem('descender-playing');
+      }
+    } catch {}
+    if (alreadyStarted) return;
+
     let unlocked = false;
     const tryPlay = () => {
       if (unlocked) return;
@@ -25,22 +37,15 @@ export function FarewellAnimation({ name }: { name: string }) {
       if (p) {
         p.then(() => {
           unlocked = true;
-        }).catch(() => {
-          // Autoplay blocked — wait for a user input.
-        });
+        }).catch(() => {});
       }
     };
-
-    // Immediate attempt (usually works since user clicked Sign out).
     tryPlay();
-    // Try again after a brief tick in case the audio metadata wasn't ready.
     const retry = window.setTimeout(tryPlay, 150);
-
     const onPointer = () => tryPlay();
     const onKey = () => tryPlay();
     window.addEventListener('pointerdown', onPointer);
     window.addEventListener('keydown', onKey);
-
     return () => {
       window.clearTimeout(retry);
       window.removeEventListener('pointerdown', onPointer);

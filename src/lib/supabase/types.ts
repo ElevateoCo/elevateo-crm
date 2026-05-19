@@ -43,6 +43,23 @@ export interface Announcement {
   created_at: string;
 }
 
+export interface Habit {
+  id: string;
+  user_id: string;
+  title: string;
+  sort_index: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface HabitCompletion {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  completed_on: string;
+  created_at: string;
+}
+
 export interface Division {
   id: string;
   code: DivisionCode;

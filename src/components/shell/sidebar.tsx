@@ -21,6 +21,7 @@ import {
   Wrench,
   Megaphone,
   MessageCircle,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +45,7 @@ const navGroups: NavItem[][] = [
   [
     { href: '/app/approvals', label: 'Approvals', icon: ShieldCheck },
     { href: '/app/tasks', label: 'Tasks', icon: CheckSquare },
+    { href: '/app/habits', label: 'Daily habits', icon: Sparkles },
     { href: '/app/projects', label: 'Projects', icon: GanttChartSquare },
     { href: '/app/clients', label: 'Clients', icon: Building2 },
     { href: '/app/chat', label: 'Chat', icon: MessageCircle },
