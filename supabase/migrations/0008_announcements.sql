@@ -47,8 +47,7 @@ begin
          v_ann.body,
          '/app'
   from public.users u
-  where u.is_active = true
-    and (v_actor is null or u.id <> v_actor);
+  where u.is_active = true;
 end;
 $$ language plpgsql security definer;
 
