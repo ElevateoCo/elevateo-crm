@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { UserPill } from '@/components/shared/user-pill';
+import { LocalTime } from '@/components/shared/local-time';
 import { roleLabel } from '@/lib/formatters';
 import type { Division, User } from '@/lib/supabase/types';
 import {
@@ -93,7 +94,10 @@ export function ItSettingsClient({
               key={u.id}
               className="grid grid-cols-[1fr_220px_120px_240px] items-center px-4 py-2.5 border-b border-[var(--color-border)] last:border-b-0"
             >
-              <UserPill user={u} />
+              <div className="flex items-center gap-2 min-w-0">
+                <UserPill user={u} />
+                <LocalTime timezone={u.timezone} />
+              </div>
               <div className="text-[12px] text-[var(--color-fg-muted)] truncate">{u.email}</div>
               <div>
                 <Badge tone="default">{roleLabel[u.role]}</Badge>

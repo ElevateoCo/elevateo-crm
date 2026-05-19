@@ -25,6 +25,31 @@ const SKIN_TONES: { value: string; label: string; hex: string }[] = [
 const AVATAR_MAX_SIDE = 192;
 const AVATAR_QUALITY = 0.78;
 
+const COMMON_TIMEZONES = [
+  'Europe/Prague',
+  'Europe/London',
+  'Europe/Amsterdam',
+  'Europe/Paris',
+  'Europe/Madrid',
+  'Europe/Berlin',
+  'Europe/Dublin',
+  'America/Buenos_Aires',
+  'America/New_York',
+  'America/Chicago',
+  'America/Denver',
+  'America/Los_Angeles',
+  'America/Mexico_City',
+  'America/Sao_Paulo',
+  'Asia/Hong_Kong',
+  'Asia/Tokyo',
+  'Asia/Dubai',
+  'Asia/Karachi',
+  'Asia/Singapore',
+  'Australia/Sydney',
+  'Australia/Perth',
+  'Pacific/Auckland',
+];
+
 async function fileToResizedDataUrl(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
   const blob = new Blob([arrayBuffer], { type: file.type });
@@ -53,10 +78,11 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
   }
 }
 
-export function ProfileForm({ profile }: { profile: User & { skin_tone?: string | null } }) {
+export function ProfileForm({ profile }: { profile: User & { skin_tone?: string | null; timezone?: string | null } }) {
   const [pending, setPending] = useState(false);
   const [avatar, setAvatar] = useState<string>(profile.avatar_url ?? '');
   const [skinTone, setSkinTone] = useState<string>(profile.skin_tone ?? '');
+  const [timezone, setTimezone] = useState<string>(profile.timezone ?? '');
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -78,6 +104,7 @@ export function ProfileForm({ profile }: { profile: User & { skin_tone?: string 
   async function onSubmit(formData: FormData) {
     formData.set('avatar_url', avatar);
     formData.set('skin_tone', skinTone);
+    formData.set('timezone', timezone);
     setPending(true);
     try {
       const r = await updateProfile(formData);
@@ -85,6 +112,18 @@ export function ProfileForm({ profile }: { profile: User & { skin_tone?: string 
       else toast.success('Saved');
     } finally {
       setPending(false);
+    }
+  }
+
+  function detectTimezone() {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz) {
+        setTimezone(tz);
+        toast.success(`Detected: ${tz}`);
+      }
+    } catch {
+      toast.error('Could not detect timezone.');
     }
   }
 
@@ -139,6 +178,30 @@ export function ProfileForm({ profile }: { profile: User & { skin_tone?: string 
       <div className="space-y-1.5">
         <Label htmlFor="full_name">Full name</Label>
         <Input id="full_name" name="full_name" defaultValue={profile.full_name} required />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="timezone">Timezone</Label>
+        <div className="flex gap-2">
+          <Input
+            id="timezone"
+            value={timezone}
+            onChange={(e) => setTimezone(e.target.value)}
+            placeholder="e.g. Europe/Prague"
+            list="tz-suggestions"
+          />
+          <Button type="button" variant="secondary" size="sm" onClick={detectTimezone}>
+            Detect
+          </Button>
+        </div>
+        <p className="text-[11px] text-[var(--color-fg-dim)]">
+          Sets the local time chip teammates see next to your name.
+        </p>
+        <datalist id="tz-suggestions">
+          {COMMON_TIMEZONES.map((tz) => (
+            <option key={tz} value={tz} />
+          ))}
+        </datalist>
       </div>
 
       <div className="space-y-2">

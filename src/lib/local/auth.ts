@@ -54,6 +54,7 @@ export async function signUpUser(
     full_name: metadata?.full_name?.trim() || email.split('@')[0],
     avatar_url: null,
     skin_tone: null,
+    timezone: null,
     cold_call_goal: 40,
     division_id: null,
     divisions: [],

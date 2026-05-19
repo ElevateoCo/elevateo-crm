@@ -254,6 +254,7 @@ function seed(store: Store) {
       full_name: p.full_name,
       avatar_url: null,
       skin_tone: null,
+      timezone: null,
       cold_call_goal: 40,
       division_id: division?.id ?? null,
       divisions,

@@ -68,7 +68,7 @@ export default async function ChatRoomPage({
 
       <MessageList messages={msgs} currentUserId={profile.id} users={users} />
 
-      <Composer roomId={id} />
+      <Composer roomId={id} users={users} />
     </div>
   );
 }

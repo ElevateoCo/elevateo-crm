@@ -15,25 +15,7 @@ const THEME_INIT_SCRIPT = `
 (function(){try{
   var s = localStorage.getItem('theme');
   var sys = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  var dark = false;
-  if (s === 'dark') dark = true;
-  else if (s === 'light') dark = false;
-  else if (s === 'auto-time') {
-    function pt(k, fb){
-      var v = localStorage.getItem(k) || fb;
-      var p = v.split(':');
-      var h = parseInt(p[0], 10) || 0;
-      var m = parseInt(p[1], 10) || 0;
-      return h * 60 + m;
-    }
-    var now = new Date();
-    var mins = now.getHours() * 60 + now.getMinutes();
-    var sunrise = pt('theme-sunrise', '06:00');
-    var sunset = pt('theme-sunset', '19:30');
-    dark = mins >= sunset || mins < sunrise;
-  } else {
-    dark = sys;
-  }
+  var dark = s === 'dark' || (s !== 'light' && sys);
   if (dark) document.documentElement.classList.add('dark');
 }catch(e){}})();
 `;

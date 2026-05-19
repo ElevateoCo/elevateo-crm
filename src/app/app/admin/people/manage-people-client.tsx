@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { UserPill } from '@/components/shared/user-pill';
+import { LocalTime } from '@/components/shared/local-time';
 import { PersonEditor } from './person-editor';
 import { divisionTone, roleLabel } from '@/lib/formatters';
 import type { Division, User, UserRole } from '@/lib/supabase/types';
@@ -187,7 +188,10 @@ export function ManagePeopleClient({
               key={u.id}
               className="grid grid-cols-[1fr_120px_140px_180px_80px_100px] items-center px-4 py-2.5 border-b border-[var(--color-border)] last:border-b-0"
             >
-              <UserPill user={u} />
+              <div className="flex items-center gap-2 min-w-0">
+                <UserPill user={u} />
+                <LocalTime timezone={u.timezone} />
+              </div>
               <div>
                 <Badge tone="default">{roleLabel[u.role]}</Badge>
               </div>

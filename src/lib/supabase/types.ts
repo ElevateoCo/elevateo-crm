@@ -75,6 +75,7 @@ export interface User {
   full_name: string;
   avatar_url: string | null;
   skin_tone: string | null;
+  timezone: string | null;
   cold_call_goal: number;
   /** Primary division — drives sidebar / default filtering / division lists. */
   division_id: string | null;
