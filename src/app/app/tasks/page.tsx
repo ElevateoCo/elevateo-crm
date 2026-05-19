@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { TaskForm } from './task-form';
+import { PixelPet } from './pixel-pet';
 import {
   getAllUsers,
   getClients,
@@ -107,9 +108,7 @@ export default async function TasksPage({
       <div className="p-6 pt-2">
         <Card>
           {tasks.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm text-[var(--color-fg-dim)]">
-              No tasks match.
-            </div>
+            <PixelPet />
           ) : (
             tasks.map((t) => (
               <TaskRow

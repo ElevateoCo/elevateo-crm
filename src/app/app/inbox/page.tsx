@@ -8,6 +8,7 @@ import { UserPill } from '@/components/shared/user-pill';
 import { markAllRead, markRead } from './actions';
 import { getAllUsers, getNotifications, requireCurrentUser } from '@/lib/queries';
 import { relativeTime } from '@/lib/utils';
+import { PixelGame } from './pixel-game';
 
 const labelByType: Record<string, string> = {
   task_assigned: 'Task assigned',
@@ -45,10 +46,7 @@ export default async function InboxPage() {
       <div className="p-6">
         <Card>
           {notifications.length === 0 ? (
-            <div className="px-4 py-12 text-center">
-              <Inbox className="h-8 w-8 mx-auto text-[var(--color-fg-dim)] mb-2" />
-              <div className="text-sm text-[var(--color-fg-muted)]">All caught up.</div>
-            </div>
+            <PixelGame />
           ) : (
             notifications.map((n) => {
               const actor = n.actor_id ? userMap.get(n.actor_id) : null;
