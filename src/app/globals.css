@@ -79,8 +79,14 @@ html, body {
   font-feature-settings: "ss01", "cv02", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Smooth the day/night swap so it doesn't snap harshly. */
-  transition: background-color 60s linear, color 60s linear;
+}
+
+/* Smooth the day/night swap only during the brief moment the swap fires.
+ * The class is added by JS just before toggling .dark and removed ~3s later
+ * so the rest of the time there's no long color transition causing flicker. */
+html.theme-fading,
+html.theme-fading body {
+  transition: background-color 2.5s ease, color 2.5s ease, border-color 2.5s ease;
 }
 
 * { border-color: var(--color-border); }
