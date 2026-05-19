@@ -23,8 +23,11 @@
   --color-ecommerce: #af52de;
   --color-admin: #8e8e93;
   --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, Monaco, monospace;
+    "Helvetica Neue", Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji",
+    sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, Monaco,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", monospace;
 }
 
 :root {

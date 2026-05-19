@@ -31,11 +31,7 @@ export function Topbar({
   const [signingOut, startSignOut] = useTransition();
 
   function handleSignOut() {
-    if (typeof window !== 'undefined' && localStorage.getItem('notify-sound-enabled') !== 'false') {
-      const el = new Audio('/sounds/sound-10.mp3');
-      el.volume = 0.5;
-      el.play().catch(() => {});
-    }
+    // The descender plays on /farewell — don't double up here.
     startSignOut(async () => {
       await signOut();
     });

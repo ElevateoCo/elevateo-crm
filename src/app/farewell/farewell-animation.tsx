@@ -11,31 +11,40 @@ export function FarewellAnimation({ name }: { name: string }) {
   const router = useRouter();
   const [lineIndex, setLineIndex] = useState(0);
   const [fading, setFading] = useState(false);
-  const startedRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio('/sounds/descender.mp3');
-    audio.volume = 0.5;
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 0.3;
 
-    const start = () => {
-      if (startedRef.current) return;
-      startedRef.current = true;
-      audio.play().catch(() => {
-        startedRef.current = false;
-      });
+    let unlocked = false;
+    const tryPlay = () => {
+      if (unlocked) return;
+      const p = audio.play();
+      if (p) {
+        p.then(() => {
+          unlocked = true;
+        }).catch(() => {
+          // Autoplay blocked — wait for a user input.
+        });
+      }
     };
 
-    start();
-    const onPointer = () => start();
-    const onKey = () => start();
-    window.addEventListener('pointerdown', onPointer, { once: true });
-    window.addEventListener('keydown', onKey, { once: true });
+    // Immediate attempt (usually works since user clicked Sign out).
+    tryPlay();
+    // Try again after a brief tick in case the audio metadata wasn't ready.
+    const retry = window.setTimeout(tryPlay, 150);
+
+    const onPointer = () => tryPlay();
+    const onKey = () => tryPlay();
+    window.addEventListener('pointerdown', onPointer);
+    window.addEventListener('keydown', onKey);
 
     return () => {
+      window.clearTimeout(retry);
       window.removeEventListener('pointerdown', onPointer);
       window.removeEventListener('keydown', onKey);
-      audio.pause();
-      audio.src = '';
     };
   }, []);
 
@@ -49,6 +58,8 @@ export function FarewellAnimation({ name }: { name: string }) {
     }, 1100);
 
     const navigate = window.setTimeout(() => {
+      // Hand off to the public login page — set the transition flag so login fades in.
+      try { sessionStorage.setItem('transition-in', '1'); } catch {}
       router.push('/login');
     }, 4200);
 
@@ -95,6 +106,7 @@ export function FarewellAnimation({ name }: { name: string }) {
           {LINES[lineIndex]}
         </div>
       </main>
+      <audio ref={audioRef} src="/sounds/descender.mp3" preload="auto" />
       <div className={styles.blackout} />
     </div>
   );

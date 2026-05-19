@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Sidebar } from '@/components/shell/sidebar';
+import { TransitionFader } from '@/components/shell/transition-fader';
+import { ChameleonEasterEgg } from '@/components/shell/chameleon-easter-egg';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +36,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </div>
       <Topbar user={session.profile} unread={unread} latestType={latestType} />
       <main className="overflow-y-auto bg-[var(--color-bg)]">{children}</main>
+      <TransitionFader />
+      <ChameleonEasterEgg />
     </div>
   );
 }

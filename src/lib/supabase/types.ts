@@ -30,7 +30,8 @@ export type NotificationType =
   | 'comment_reply'
   | 'project_assigned'
   | 'approval_pending'
-  | 'announcement';
+  | 'announcement'
+  | 'chat_mention';
 
 export interface Announcement {
   id: string;

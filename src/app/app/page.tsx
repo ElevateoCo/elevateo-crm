@@ -493,7 +493,7 @@ function CalendarCard({ days }: { days: CalendarDay[] }) {
             >
               <div className="text-[11px] font-medium">{day.day}</div>
               {day.dueCount > 0 ? (
-                <div className="mt-2 inline-flex rounded-full bg-[var(--color-accent)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">
+                <div className="mt-1 text-[10px] font-medium text-[var(--color-accent)]">
                   {day.dueCount} due
                 </div>
               ) : null}

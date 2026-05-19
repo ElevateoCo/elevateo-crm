@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { LoginForm } from './login-form';
 
 export default async function LoginPage({
@@ -23,12 +22,6 @@ export default async function LoginPage({
         Use the email your admin invited you with.
       </p>
       <LoginForm next={next} />
-      <div className="text-[12px] text-[var(--color-fg-muted)] mt-6 text-center">
-        Don&apos;t have an account?{' '}
-        <Link href="/signup" className="text-[var(--color-accent)] hover:underline font-medium">
-          Create one
-        </Link>
-      </div>
     </div>
   );
 }

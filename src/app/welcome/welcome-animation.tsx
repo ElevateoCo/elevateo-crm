@@ -15,7 +15,7 @@ export function WelcomeAnimation({ next }: { next: string }) {
 
   useEffect(() => {
     const audio = new Audio('/sounds/riser.mp3');
-    audio.volume = 0.5;
+    audio.volume = 0.3;
     audioRef.current = audio;
 
     const start = () => {
@@ -65,6 +65,7 @@ export function WelcomeAnimation({ next }: { next: string }) {
     if (exiting) return;
     setExiting(true);
     window.setTimeout(() => {
+      try { sessionStorage.setItem('transition-in', '1'); } catch {}
       router.push(next || '/app');
     }, 950);
   }
