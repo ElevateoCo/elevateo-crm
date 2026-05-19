@@ -69,6 +69,7 @@ export function TaskForm({
       lead: 2,
       member: 3,
       reservist: 4,
+      external: 5,
     };
 
     return users

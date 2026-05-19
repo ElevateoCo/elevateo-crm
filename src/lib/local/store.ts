@@ -253,6 +253,7 @@ function seed(store: Store) {
       email: p.email,
       full_name: p.full_name,
       avatar_url: null,
+      skin_tone: null,
       cold_call_goal: 40,
       division_id: division?.id ?? null,
       divisions,
