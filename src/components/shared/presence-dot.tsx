@@ -17,7 +17,7 @@ export function PresenceDot({
 }) {
   if (!user) return null;
   const status: EffectiveStatus = effectiveStatus(user);
-  if (status === 'offline') return null;
+  const isOffline = status === 'offline';
   const color = statusColor[status];
 
   return (
@@ -32,7 +32,8 @@ export function PresenceDot({
         height: size,
         right: -1,
         bottom: -1,
-        background: color,
+        background: isOffline ? 'transparent' : color,
+        border: isOffline ? '1.5px solid var(--color-fg-dim)' : undefined,
       }}
     >
       {status === 'dnd' ? (
