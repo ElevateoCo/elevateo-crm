@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getAllUsers, getDivisions, requireCurrentUser } from '@/lib/queries';
 import { UserPill } from '@/components/shared/user-pill';
 import { RoomShell } from '../room-shell';
+import { MarkRoomReadOnMount } from '../mark-read-on-mount';
 import type { User } from '@/lib/supabase/types';
 
 export const dynamic = 'force-dynamic';
@@ -82,13 +83,16 @@ export default async function ChatRoomPage({
   }>;
 
   return (
-    <RoomShell
-      roomId={id}
-      title={title}
-      members={members}
-      messages={msgs}
-      currentUserId={profile.id}
-      allUsers={users}
-    />
+    <>
+      <MarkRoomReadOnMount roomId={id} />
+      <RoomShell
+        roomId={id}
+        title={title}
+        members={members}
+        messages={msgs}
+        currentUserId={profile.id}
+        allUsers={users}
+      />
+    </>
   );
 }
