@@ -80,10 +80,10 @@ insert into _seed_users (email, full_name, role, division_code, manager_email, e
   ('callum.mcfarlen@elevateoco.com',  'Callum McFarlen',    'member',    'technology', 'arnis.piekus@elevateoco.com',     array['technology']::division_code[]),
 
   -- Sales externals under Hazem
-  ('bisho@elevateoco.com',            'Bisho',              'member',    'sales',      'hazem.dweik@elevateoco.com',      array['sales','ecommerce']::division_code[]),
-  ('tomoki@elevateoco.com',           'Tomoki',             'member',    'sales',      'hazem.dweik@elevateoco.com',      array['sales','ecommerce']::division_code[]),
-  ('hamzah@elevateoco.com',           'Hamzah',             'member',    'sales',      'hazem.dweik@elevateoco.com',      array['sales']::division_code[]),
-  ('aziz@elevateoco.com',             'Aziz',               'member',    'sales',      'hazem.dweik@elevateoco.com',      array['sales']::division_code[]),
+  ('bisho@elevateoco.com',            'Bisho',              'external',  'sales',      'hazem.dweik@elevateoco.com',      array['sales','ecommerce']::division_code[]),
+  ('tomoki@elevateoco.com',           'Tomoki',             'external',  'sales',      'hazem.dweik@elevateoco.com',      array['sales','ecommerce']::division_code[]),
+  ('hamzah@elevateoco.com',           'Hamzah',             'external',  'sales',      'hazem.dweik@elevateoco.com',      array['sales']::division_code[]),
+  ('aziz@elevateoco.com',             'Aziz',               'external',  'sales',      'hazem.dweik@elevateoco.com',      array['sales']::division_code[]),
 
   -- Partner / Core under Thomas
   ('nathan@elevateoco.com',           'Nathan',             'member',    'sales',      'thomas.charrier@elevateoco.com',  array['sales']::division_code[]),
@@ -92,11 +92,11 @@ insert into _seed_users (email, full_name, role, division_code, manager_email, e
   ('leo.ioannidis@elevateoco.com',    'Leo Ioannidis',      'member',    'sales',      'zuriel.robledo@elevateoco.com',   array['sales']::division_code[]),
 
   -- Field Sales Agents under Allan
-  ('cory.mcguckin@elevateoco.com',    'Cory McGuckin',      'member',    'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
-  ('gerrard.mcferran@elevateoco.com', 'Gerrard McFerran',   'member',    'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
-  ('etkc@elevateoco.com',             'ETKC',               'member',    'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
-  ('yonalle@elevateoco.com',          'Yonalle',            'member',    'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
-  ('nicky@elevateoco.com',            'Nicky',              'member',    'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
+  ('cory.mcguckin@elevateoco.com',    'Cory McGuckin',      'external',  'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
+  ('gerrard.mcferran@elevateoco.com', 'Gerrard McFerran',   'external',  'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
+  ('etkc@elevateoco.com',             'ETKC',               'external',  'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
+  ('yonalle@elevateoco.com',          'Yonalle',            'external',  'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
+  ('nicky@elevateoco.com',            'Nicky',              'external',  'sales',      'allan.chan@elevateoco.com',       array['sales']::division_code[]),
 
   -- Rosey Co reservists under Bailey
   ('barry.brother@elevateoco.com',    'Barry''s Brother',   'reservist', 'marketing',  'bailey.barry@elevateoco.co.uk',   array['marketing']::division_code[]),
@@ -105,9 +105,9 @@ insert into _seed_users (email, full_name, role, division_code, manager_email, e
   ('james.reservist@elevateoco.com',  'James (Reservist)',  'reservist', 'marketing',  'bailey.barry@elevateoco.co.uk',   array['marketing']::division_code[]),
 
   -- E-commerce affiliates under Julian
-  ('ross@elevateoco.com',             'Ross',               'member',    'ecommerce',  'julianvdijk05@gmail.com',         array['ecommerce']::division_code[]),
-  ('matt@elevateoco.com',             'Matt',               'member',    'ecommerce',  'julianvdijk05@gmail.com',         array['ecommerce']::division_code[]),
-  ('mantas@elevateoco.com',           'Mantas',             'member',    'ecommerce',  'julianvdijk05@gmail.com',         array['ecommerce']::division_code[]),
+  ('ross@elevateoco.com',             'Ross',               'external',  'ecommerce',  'julianvdijk05@gmail.com',         array['ecommerce']::division_code[]),
+  ('matt@elevateoco.com',             'Matt',               'external',  'ecommerce',  'julianvdijk05@gmail.com',         array['ecommerce']::division_code[]),
+  ('mantas@elevateoco.com',           'Mantas',             'external',  'ecommerce',  'julianvdijk05@gmail.com',         array['ecommerce']::division_code[]),
 
   -- Partner / Other
   ('ratan@elevateoco.com',            'Ratan',              'member',    'ecommerce',  'hazem.dweik@elevateoco.com',      array['ecommerce']::division_code[]);
