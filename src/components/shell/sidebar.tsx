@@ -24,15 +24,35 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { Division, User } from '@/lib/supabase/types';
 
-const navItems = [
-  { href: '/app', label: 'Command Center', icon: LayoutDashboard, exact: true },
-  { href: '/app/approvals', label: 'Approvals', icon: ShieldCheck },
-  { href: '/app/tasks', label: 'Tasks', icon: CheckSquare },
-  { href: '/app/projects', label: 'Projects', icon: GanttChartSquare },
-  { href: '/app/clients', label: 'Clients', icon: Building2 },
-  { href: '/app/sops', label: 'SOP library', icon: BookOpen },
-  { href: '/app/inbox', label: 'Notifications', icon: Inbox },
-  { href: '/app/hierarchy', label: 'Hierarchy', icon: Network },
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+  external?: boolean;
+};
+
+const navGroups: NavItem[][] = [
+  // Home + inbox
+  [
+    { href: '/app', label: 'Command Center', icon: LayoutDashboard, exact: true },
+    { href: '/app/inbox', label: 'Notifications', icon: Inbox },
+  ],
+  // Work
+  [
+    { href: '/app/approvals', label: 'Approvals', icon: ShieldCheck },
+    { href: '/app/tasks', label: 'Tasks', icon: CheckSquare },
+    { href: '/app/projects', label: 'Projects', icon: GanttChartSquare },
+    { href: '/app/clients', label: 'Clients', icon: Building2 },
+  ],
+  // Org
+  [{ href: '/app/hierarchy', label: 'Hierarchy', icon: Network }],
+  // Resources
+  [
+    { href: '/app/sops', label: 'SOP library', icon: BookOpen },
+    { href: 'https://calls.elevateoco.com/leads', label: 'Cold Caller', icon: PhoneOutgoing, external: true },
+    { href: '/app/proposals', label: 'Proposals', icon: FileText },
+  ],
 ];
 
 export function Sidebar({
@@ -72,54 +92,52 @@ export function Sidebar({
       </div>
 
       <div className="flex-1 overflow-y-auto py-3">
-        <div className="px-2 space-y-0.5">
-          {navItems.map((item) => {
-            const active = item.exact
-              ? pathname === item.href
-              : pathname?.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] transition',
-                  active
-                    ? 'bg-[var(--color-surface-3)] text-[var(--color-fg)] font-medium'
-                    : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)]'
-                )}
-              >
-                <item.icon className="h-4 w-4" />
-                <span className="flex-1">{item.label}</span>
-                {item.href === '/app/approvals' && pendingApprovals > 0 ? (
-                  <Badge tone="accent">{pendingApprovals}</Badge>
-                ) : null}
-              </Link>
-            );
-          })}
-
-          <a
-            href="https://calls.elevateoco.com/leads"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)] transition"
-          >
-            <PhoneOutgoing className="h-4 w-4" />
-            <span className="flex-1">Cold Caller</span>
-            <ExternalLink className="h-3 w-3 text-[var(--color-fg-dim)]" />
-          </a>
-
-          <Link
-            href="/app/proposals"
-            className={cn(
-              'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] transition',
-              pathname?.startsWith('/app/proposals')
-                ? 'bg-[var(--color-surface-3)] text-[var(--color-fg)] font-medium'
-                : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)]'
-            )}
-          >
-            <FileText className="h-4 w-4" />
-            <span className="flex-1">Proposals</span>
-          </Link>
+        <div className="px-2">
+          {navGroups.map((group, gi) => (
+            <div
+              key={gi}
+              className={cn('space-y-0.5', gi > 0 && 'mt-3')}
+            >
+              {group.map((item) => {
+                if (item.external) {
+                  return (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)] transition"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="flex-1">{item.label}</span>
+                      <ExternalLink className="h-3 w-3 text-[var(--color-fg-dim)]" />
+                    </a>
+                  );
+                }
+                const active = item.exact
+                  ? pathname === item.href
+                  : pathname?.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] transition',
+                      active
+                        ? 'bg-[var(--color-surface-3)] text-[var(--color-fg)] font-medium'
+                        : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)]'
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="flex-1">{item.label}</span>
+                    {item.href === '/app/approvals' && pendingApprovals > 0 ? (
+                      <Badge tone="accent">{pendingApprovals}</Badge>
+                    ) : null}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </div>
 
         <div className="mt-6 px-2">
