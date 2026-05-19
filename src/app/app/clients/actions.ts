@@ -58,6 +58,30 @@ export async function createClientRecord(formData: FormData) {
   redirect(`/app/clients/${data!.id}`);
 }
 
+export async function deleteClient(id: string) {
+  const { profile } = await requireCurrentUser();
+  const supabase = await createClient();
+
+  const { data: client } = await supabase
+    .from('clients')
+    .select('name')
+    .eq('id', id)
+    .maybeSingle();
+
+  const { error } = await supabase.from('clients').delete().eq('id', id);
+  if (error) return { error: error.message };
+
+  await supabase.from('activity_log').insert({
+    entity_type: 'client',
+    entity_id: id,
+    actor_id: profile.id,
+    action: `deleted client${client?.name ? ` ${client.name}` : ''}`,
+  });
+
+  revalidatePath('/app/clients');
+  redirect('/app/clients');
+}
+
 const ClientUpdate = ClientCreate.partial();
 
 export async function updateClient(id: string, formData: FormData) {

@@ -69,6 +69,30 @@ export async function createProject(formData: FormData) {
   redirect(`/app/projects/${data!.id}`);
 }
 
+export async function deleteProject(id: string) {
+  const { profile } = await requireCurrentUser();
+  const supabase = await createClient();
+
+  const { data: project } = await supabase
+    .from('projects')
+    .select('title')
+    .eq('id', id)
+    .maybeSingle();
+
+  const { error } = await supabase.from('projects').delete().eq('id', id);
+  if (error) return { error: error.message };
+
+  await supabase.from('activity_log').insert({
+    entity_type: 'project',
+    entity_id: id,
+    actor_id: profile.id,
+    action: `deleted project${project?.title ? ` ${project.title}` : ''}`,
+  });
+
+  revalidatePath('/app/projects');
+  redirect('/app/projects');
+}
+
 export async function updateProject(id: string, formData: FormData) {
   const { profile } = await requireCurrentUser();
   const raw = Object.fromEntries(formData.entries());

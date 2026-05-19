@@ -16,6 +16,8 @@ import {
 import { TaskForm } from '../task-form';
 import { TaskActions } from './task-actions';
 import { CommentList } from './comments';
+import { DeleteEntityButton } from '@/components/shared/delete-entity-button';
+import { deleteTask } from '../actions';
 import { createClient } from '@/lib/supabase/server';
 import {
   getAllUsers,
@@ -128,6 +130,15 @@ export default async function TaskDetailPage({
                 />
               </DialogContent>
             </Dialog>
+            <DeleteEntityButton
+              entityLabel="task"
+              entityName={task.title}
+              cascadeNote="All comments and approval records for this task will also be removed."
+              action={async () => {
+                'use server';
+                return deleteTask(task.id);
+              }}
+            />
           </>
         }
       />

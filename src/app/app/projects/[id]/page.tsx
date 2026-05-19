@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/dialog';
 import { TaskForm } from '../../tasks/task-form';
 import { ProjectForm } from '../project-form';
+import { DeleteEntityButton } from '@/components/shared/delete-entity-button';
+import { deleteProject } from '../actions';
 import {
   getAllUsers,
   getClients,
@@ -119,6 +121,15 @@ export default async function ProjectDetailPage({
                 />
               </DialogContent>
             </Dialog>
+            <DeleteEntityButton
+              entityLabel="project"
+              entityName={project.title}
+              cascadeNote="All tasks, comments, approvals, and files attached to this project will be removed."
+              action={async () => {
+                'use server';
+                return deleteProject(project.id);
+              }}
+            />
           </>
         }
       />

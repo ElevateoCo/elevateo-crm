@@ -14,6 +14,10 @@ import {
   Settings2,
   ShieldCheck,
   Network,
+  FileText,
+  BookOpen,
+  PhoneOutgoing,
+  ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +28,9 @@ const navItems = [
   { href: '/app/approvals', label: 'Approvals', icon: ShieldCheck },
   { href: '/app/tasks', label: 'Tasks', icon: CheckSquare },
   { href: '/app/projects', label: 'Projects', icon: GanttChartSquare },
+  { href: '/app/proposals', label: 'Proposals', icon: FileText },
   { href: '/app/clients', label: 'Clients', icon: Building2 },
+  { href: '/app/sops', label: 'SOP library', icon: BookOpen },
   { href: '/app/inbox', label: 'Notifications', icon: Inbox },
   { href: '/app/people', label: 'People', icon: Users },
   { href: '/app/hierarchy', label: 'Hierarchy', icon: Network },
@@ -91,6 +97,17 @@ export function Sidebar({
               </Link>
             );
           })}
+
+          <a
+            href="https://calls.elevateoco.com/leads"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)] transition"
+          >
+            <PhoneOutgoing className="h-4 w-4" />
+            <span className="flex-1">Cold Caller</span>
+            <ExternalLink className="h-3 w-3 text-[var(--color-fg-dim)]" />
+          </a>
         </div>
 
         <div className="mt-6 px-2">

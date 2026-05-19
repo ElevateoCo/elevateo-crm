@@ -49,5 +49,17 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  if (user) {
+    const mustChange = Boolean(
+      (user.user_metadata as Record<string, unknown> | null)?.must_change_password,
+    );
+    if (mustChange && !pathname.startsWith('/change-password')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/change-password';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+  }
+
   return response;
 }

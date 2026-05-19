@@ -12,7 +12,7 @@ interface Node {
 
 const tree: Node = {
   name: 'Allan Chan',
-  role: 'CEO',
+  role: 'CEO & Interim CFO',
   tag: 'core',
   children: [
     {
@@ -22,46 +22,47 @@ const tree: Node = {
       children: [
         {
           name: 'Roy Neven',
-          role: 'Sales Owner',
+          role: 'Sales Owner (RSM, Netherlands)',
           tag: 'core',
           children: [
             {
               name: 'Hazem Dw.',
-              role: 'Sales Manager',
+              role: 'Head of People / Sales Manager',
               tag: 'core',
               children: [
-                { name: 'Bisho', role: 'Sales onboarded by Hazem', tag: 'external' },
-                { name: 'Tomoki', role: 'Sales onboarded by Hazem', tag: 'external' },
-                { name: 'Hamzah', role: 'Sales onboarded by Hazem', tag: 'external' },
-                { name: 'Aziz', role: 'Sales onboarded by Hazem', tag: 'external' },
+                { name: 'Bisho', role: 'Sales', tag: 'external' },
+                { name: 'Tomoki', role: 'Sales', tag: 'external' },
+                { name: 'Hamzah', role: 'Sales', tag: 'external' },
+                { name: 'Aziz', role: 'Sales', tag: 'external' },
               ],
             },
             {
-              name: 'Thomas / T Charrier',
-              role: 'Sales Manager',
+              name: 'Thomas Charrier',
+              role: 'Sales Manager (CST, Missouri)',
               tag: 'core',
               children: [
-                { name: 'Nathan', role: 'Core sales member onboarded under Thomas', tag: 'core' },
+                { name: 'Nathan', role: 'Partner / Core Sales (CST, Missouri)', tag: 'partner' },
               ],
             },
             {
               name: 'Zuri Robledo',
-              role: 'Sales Manager',
+              role: 'Sales Manager (CST, Texas)',
               tag: 'core',
-              children: [{ name: 'Leo Ioannidis', role: 'Sales / team candidate', tag: 'candidate' }],
+              children: [{ name: 'Leo Ioannidis', role: 'Candidate', tag: 'candidate' }],
             },
-            { name: 'Lachie', role: 'Sales Manager', tag: 'core' },
-            { name: 'Lewis Hayward', role: 'Sales Manager', tag: 'core' },
+            { name: 'Lachie', role: 'CCO / RSM (Buenos Aires + AUS coverage)', tag: 'core' },
+            { name: 'Lewis Hayward', role: 'RSM (GMT, UK)', tag: 'core' },
+            { name: 'James Taylor', role: 'Sales & Marketing (Ireland)', tag: 'core' },
             {
               name: 'Allan Chan',
-              role: 'External field sales onboarding',
+              role: 'Field Sales Onboarding',
               tag: 'core',
               children: [
-                { name: 'Cory McGuckin', role: 'Sales Person / Field Sales Agent', tag: 'external' },
-                { name: 'Gerrard McFerran', role: 'Sales Person / Field Sales Agent', tag: 'external' },
-                { name: 'ETKC', role: 'Sales Person / Field Sales Agent', tag: 'external' },
-                { name: 'Yonalle', role: 'Sales Person / Field Sales Agent', tag: 'external' },
-                { name: 'Nicky', role: 'Sales Person / Field Sales Agent', tag: 'external' },
+                { name: 'Cory McGuckin', role: 'Field Sales Agent', tag: 'external' },
+                { name: 'Gerrard McFerran', role: 'Field Sales Agent', tag: 'external' },
+                { name: 'ETKC', role: 'Field Sales Agent', tag: 'external' },
+                { name: 'Yonalle', role: 'Field Sales Agent', tag: 'external' },
+                { name: 'Nicky', role: 'Field Sales Agent', tag: 'external' },
               ],
             },
           ],
@@ -75,22 +76,23 @@ const tree: Node = {
       children: [
         {
           name: 'Hazem Dw.',
-          role: 'Marketing Owner, final public-facing approval',
+          role: 'Marketing Owner / final approval',
           tag: 'core',
           children: [
             {
               name: 'Bailey',
-              role: 'Rosey Co Squad Leader / marketing implementation',
+              role: 'CMO / Rosey Co Squad Leader',
               tag: 'core',
               children: [
-                { name: "Barry's Brother", role: 'Rosey Co Reservist', tag: 'reservist' },
-                { name: 'Valdas', role: 'Rosey Co Reservist', tag: 'reservist' },
-                { name: 'Kelvin', role: 'Rosey Co Reservist', tag: 'reservist' },
-                { name: 'James', role: 'Rosey Co Reservist', tag: 'reservist' },
+                { name: "Barry's Brother", role: 'Reservist', tag: 'reservist' },
+                { name: 'Valdas', role: 'Reservist', tag: 'reservist' },
+                { name: 'Kelvin', role: 'Reservist', tag: 'reservist' },
+                { name: 'James', role: 'Reservist', tag: 'reservist' },
               ],
             },
-            { name: 'Emil Larsen', role: 'Video editing and creative fulfillment', tag: 'core' },
-            { name: 'Julian', role: 'Social media support where needed', tag: 'core' },
+            { name: 'Emil Larsen', role: 'Interim COO / Video & Creative Fulfilment (GMT+1, Denmark)', tag: 'core' },
+            { name: 'Julian', role: 'Head of Affiliate Marketing / Social Media (GMT+1, Netherlands)', tag: 'core' },
+            { name: 'James Taylor', role: 'Sales & Marketing (Ireland)', tag: 'core' },
           ],
         },
       ],
@@ -102,15 +104,15 @@ const tree: Node = {
       children: [
         {
           name: 'Arnis',
-          role: 'Technology Owner / Chief Technology Officer',
+          role: 'CTO / Technology Owner (Buenos Aires)',
           tag: 'core',
           children: [
-            { name: 'Bailey', role: 'Artificial intelligence and technical fulfillment lead', tag: 'core' },
-            { name: 'Jeison', role: 'Product / technical fulfillment', tag: 'core' },
-            { name: 'Tanzeel Ahmad', role: 'Product / technical fulfillment', tag: 'core' },
-            { name: 'Chase Buchanan', role: 'Product / technical fulfillment', tag: 'core' },
-            { name: 'Callum', role: 'Product / technical fulfillment', tag: 'core' },
-            { name: 'Emil Larsen', role: 'Backend and coding support', tag: 'core' },
+            { name: 'Bailey', role: 'AI & Technical Fulfilment Lead', tag: 'core' },
+            { name: 'Jeison', role: 'VP of Products (GMT+1, Netherlands)', tag: 'core' },
+            { name: 'Tanzeel Ahmad', role: 'VP of Products (GMT+12, Australia)', tag: 'core' },
+            { name: 'Chase Buchanan', role: 'VP of Products (GMT−7, California)', tag: 'core' },
+            { name: 'Callum', role: 'VP of Products (UTC, England)', tag: 'core' },
+            { name: 'Emil Larsen', role: 'Backend & Coding Support', tag: 'core' },
           ],
         },
       ],
@@ -127,7 +129,7 @@ const tree: Node = {
           children: [
             {
               name: 'Julian',
-              role: 'Key e-commerce operator / social-store execution',
+              role: 'Head of Affiliate / E-commerce Operator',
               tag: 'core',
               children: [
                 { name: 'Ross', role: 'Affiliate', tag: 'external' },
@@ -137,8 +139,8 @@ const tree: Node = {
                 { name: 'Tomoki', role: 'Affiliate', tag: 'external' },
               ],
             },
-            { name: 'Bailey', role: 'Store setup and technical/marketing implementation', tag: 'core' },
-            { name: 'Emil Larsen', role: 'Store videos, content, backend support', tag: 'core' },
+            { name: 'Bailey', role: 'Store Setup & Technical/Marketing', tag: 'core' },
+            { name: 'Emil Larsen', role: 'Store Videos, Content & Backend', tag: 'core' },
           ],
         },
       ],
@@ -150,7 +152,7 @@ const tree: Node = {
       children: [
         {
           name: 'Hazem Dw.',
-          role: 'People Manager, role clarity, morale, private check-ins, conflict handling',
+          role: 'Head of People (GMT+1, Czech Republic) - role clarity, morale, private check-ins, conflict handling',
           tag: 'core',
         },
       ],
@@ -159,7 +161,7 @@ const tree: Node = {
       name: '__SECTION__',
       role: 'Partner / Other',
       tag: 'core',
-      children: [{ name: 'Ratan and his team', role: 'Fulfillment candidate', tag: 'candidate' }],
+      children: [{ name: 'Ratan and his team', role: 'Fulfilment candidate', tag: 'candidate' }],
     },
   ],
 };

@@ -21,7 +21,7 @@ export default async function AdminPeoplePage() {
   const users = await getAllUsers();
   const divMap = new Map(divisions.map((d) => [d.id, d]));
   const userMap = new Map(users.map((u) => [u.id, u]));
-  const canGrantAdmin = ['allan.chan@elevateoco.com', 'arnis@elevateoco.com', 'hazem.dweik@elevateoco.com'].includes(
+  const canGrantAdmin = ['allan.chan@elevateoco.com', 'arnis.piekus@elevateoco.com', 'hazem.dweik@elevateoco.com'].includes(
     profile.email.toLowerCase()
   );
 

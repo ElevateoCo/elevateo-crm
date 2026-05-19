@@ -67,6 +67,34 @@ export async function createTask(formData: FormData) {
   redirect(`/app/tasks/${data!.id}`);
 }
 
+export async function deleteTask(id: string) {
+  const { profile } = await requireCurrentUser();
+  const supabase = await createClient();
+
+  const { data: task } = await supabase
+    .from('tasks')
+    .select('title, project_id')
+    .eq('id', id)
+    .maybeSingle();
+
+  const { error } = await supabase.from('tasks').delete().eq('id', id);
+  if (error) return { error: error.message };
+
+  await supabase.from('activity_log').insert({
+    entity_type: 'task',
+    entity_id: id,
+    actor_id: profile.id,
+    action: `deleted task${task?.title ? ` "${task.title}"` : ''}`,
+  });
+
+  revalidatePath('/app/tasks');
+  if (task?.project_id) {
+    revalidatePath(`/app/projects/${task.project_id}`);
+    redirect(`/app/projects/${task.project_id}`);
+  }
+  redirect('/app/tasks');
+}
+
 const TaskUpdate = z.object({
   title: z.string().min(2).optional(),
   description: optStr,

@@ -15,6 +15,8 @@ import {
 import { UserPill } from '@/components/shared/user-pill';
 import { ClientForm } from '../client-form';
 import { ProjectForm } from '../../projects/project-form';
+import { DeleteEntityButton } from '@/components/shared/delete-entity-button';
+import { deleteClient } from '../actions';
 import {
   getAllUsers,
   getClient,
@@ -100,6 +102,15 @@ export default async function ClientDetailPage({
                 />
               </DialogContent>
             </Dialog>
+            <DeleteEntityButton
+              entityLabel="client"
+              entityName={client.name}
+              cascadeNote="All projects, tasks, and files linked to this client will be removed."
+              action={async () => {
+                'use server';
+                return deleteClient(client.id);
+              }}
+            />
           </>
         }
       />
