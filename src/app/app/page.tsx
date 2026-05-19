@@ -26,6 +26,24 @@ import type { ActivityLogEntry, Project, Task } from '@/lib/supabase/types';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+const GREETINGS = [
+  (n: string) => `What's on the agenda today, ${n}? Where should we begin?`,
+  (n: string) => `Good to see you, ${n}. What can you think of?`,
+  (n: string) => `Back at it, ${n}. What's the one thing that moves the needle today?`,
+  (n: string) => `Welcome back, ${n}. Pick your battle for the morning.`,
+  (n: string) => `Morning, ${n}. Let's make today count.`,
+  (n: string) => `Hey ${n} — what would make today a win?`,
+  (n: string) => `${n}, the team's waiting. What's first?`,
+  (n: string) => `Show up, ${n}. The work doesn't move itself.`,
+  (n: string) => `One step at a time, ${n}. What's step one?`,
+  (n: string) => `Big day or small day, ${n} — your call.`,
+  (n: string) => `${n}, what's the move?`,
+  (n: string) => `Let's get after it, ${n}.`,
+  (n: string) => `${n} — focus beats hustle. What gets your focus today?`,
+  (n: string) => `${n}, what would make this week look obvious in hindsight?`,
+  (n: string) => `Steady, ${n}. Pick one thing and finish it.`,
+];
+
 export default async function CommandCenterPage() {
   const { profile } = await requireCurrentUser();
   const [myTasks, pendingApprovals, projects, users, divisions] = await Promise.all([
@@ -101,7 +119,9 @@ export default async function CommandCenterPage() {
     <div className="min-h-full flex flex-col">
       <PageHeader
         title="Command Center"
-        description={`${profile.full_name.split(' ')[0] || 'Team'}, approvals, delivery, and project load in one place.`}
+        description={GREETINGS[Math.floor(Math.random() * GREETINGS.length)](
+          profile.full_name.split(' ')[0] || 'Team',
+        )}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 p-7 pb-3">

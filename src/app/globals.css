@@ -33,6 +33,42 @@
   --foreground: var(--color-fg);
 }
 
+html.dark {
+  color-scheme: dark;
+  --color-bg: #0b0b0d;
+  --color-surface: #161618;
+  --color-surface-2: #1c1c1f;
+  --color-surface-3: #232327;
+  --color-border: #2a2a2e;
+  --color-border-strong: #3a3a40;
+  --color-fg: #f2f2f5;
+  --color-fg-muted: #b6b6bb;
+  --color-fg-dim: #86868b;
+  --color-accent: #0a84ff;
+  --color-accent-hover: #1d8eff;
+  --color-accent-soft: #1c2e4a;
+}
+
+/* Bridge Tailwind utility classes that hardcode white surfaces. */
+html.dark .bg-white { background-color: var(--color-surface) !important; }
+html.dark .text-black { color: var(--color-fg) !important; }
+html.dark .bg-red-50 { background-color: rgba(255, 59, 48, 0.12) !important; }
+html.dark .text-red-700, html.dark .text-red-600 { color: #ff6b62 !important; }
+html.dark .border-red-200 { border-color: rgba(255, 59, 48, 0.3) !important; }
+html.dark .bg-emerald-50 { background-color: rgba(52, 199, 89, 0.12) !important; }
+html.dark .text-emerald-700 { color: #4ad06b !important; }
+html.dark .bg-amber-50 { background-color: rgba(255, 159, 10, 0.12) !important; }
+html.dark .text-amber-700, html.dark .text-amber-200 { color: #ffb84d !important; }
+html.dark .bg-sky-50 { background-color: rgba(0, 122, 255, 0.12) !important; }
+html.dark .text-sky-700 { color: #5ba8ff !important; }
+html.dark .bg-violet-50 { background-color: rgba(175, 82, 222, 0.14) !important; }
+html.dark .text-violet-700 { color: #c481ff !important; }
+html.dark .bg-pink-50 { background-color: rgba(255, 45, 85, 0.14) !important; }
+html.dark .text-pink-700 { color: #ff7095 !important; }
+html.dark .bg-\[\#f1f5f9\], html.dark .bg-\[\#f0f2f5\] { background-color: var(--color-surface-2) !important; }
+html.dark ::-webkit-scrollbar-thumb { background: #3a3a40; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #4a4a52; }
+
 html, body {
   background: var(--color-bg);
   color: var(--color-fg);
@@ -48,7 +84,7 @@ html, body {
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: #b8b8bd; }
 
 .font-mono { font-family: var(--font-mono); }

@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { signOut } from '@/app/(auth)/login/actions';
 import { initials } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +46,9 @@ export function Topbar({ user, unread }: { user: User | null; unread: number }) 
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 rounded-full px-1.5 py-1 hover:bg-[var(--color-surface-3)] transition">
             <Avatar>
+              {user?.avatar_url ? (
+                <AvatarImage src={user.avatar_url} alt={user.full_name || user.email} />
+              ) : null}
               <AvatarFallback>{initials(user?.full_name || user?.email || '?')}</AvatarFallback>
             </Avatar>
             <div className="text-left hidden sm:block pr-1">

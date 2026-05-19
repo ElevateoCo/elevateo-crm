@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { initials } from '@/lib/utils';
 import type { User } from '@/lib/supabase/types';
 
@@ -6,7 +6,7 @@ export function UserPill({
   user,
   size = 'sm',
 }: {
-  user: Pick<User, 'full_name' | 'email'> | null | undefined;
+  user: Pick<User, 'full_name' | 'email' | 'avatar_url'> | null | undefined;
   size?: 'xs' | 'sm';
 }) {
   if (!user) {
@@ -23,6 +23,7 @@ export function UserPill({
   return (
     <span className="inline-flex items-center gap-1.5">
       <Avatar className={size === 'xs' ? 'h-5 w-5' : 'h-6 w-6'}>
+        {user.avatar_url ? <AvatarImage src={user.avatar_url} alt={name} /> : null}
         <AvatarFallback>{initials(name)}</AvatarFallback>
       </Avatar>
       <span className={size === 'xs' ? 'text-[11px]' : 'text-xs'}>{name}</span>
