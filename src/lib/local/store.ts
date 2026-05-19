@@ -255,6 +255,7 @@ function seed(store: Store) {
       avatar_url: null,
       skin_tone: null,
       timezone: null,
+      bio: null,
       cold_call_goal: 40,
       division_id: division?.id ?? null,
       divisions,

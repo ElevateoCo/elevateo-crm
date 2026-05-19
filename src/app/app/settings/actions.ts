@@ -23,6 +23,7 @@ const Patch = z.object({
   avatar_url: avatarField.optional().or(z.literal('')),
   skin_tone: z.string().max(40).optional().or(z.literal('')),
   timezone: z.string().max(80).optional().or(z.literal('')),
+  bio: z.string().max(140).optional().or(z.literal('')),
   cold_call_goal: z.coerce.number().int().min(0).max(500),
 });
 
@@ -33,6 +34,7 @@ export async function updateProfile(formData: FormData) {
     avatar_url: formData.get('avatar_url') ?? '',
     skin_tone: formData.get('skin_tone') ?? '',
     timezone: formData.get('timezone') ?? '',
+    bio: formData.get('bio') ?? '',
     cold_call_goal: formData.get('cold_call_goal') ?? 0,
   });
   if (!parsed.success) {
@@ -47,6 +49,7 @@ export async function updateProfile(formData: FormData) {
       avatar_url: parsed.data.avatar_url || null,
       skin_tone: parsed.data.skin_tone || null,
       timezone: parsed.data.timezone || null,
+      bio: parsed.data.bio || null,
       cold_call_goal: parsed.data.cold_call_goal,
     })
     .eq('id', profile.id);

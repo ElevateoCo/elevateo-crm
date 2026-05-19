@@ -78,11 +78,12 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
   }
 }
 
-export function ProfileForm({ profile }: { profile: User & { skin_tone?: string | null; timezone?: string | null } }) {
+export function ProfileForm({ profile }: { profile: User & { skin_tone?: string | null; timezone?: string | null; bio?: string | null } }) {
   const [pending, setPending] = useState(false);
   const [avatar, setAvatar] = useState<string>(profile.avatar_url ?? '');
   const [skinTone, setSkinTone] = useState<string>(profile.skin_tone ?? '');
   const [timezone, setTimezone] = useState<string>(profile.timezone ?? '');
+  const [bio, setBio] = useState<string>(profile.bio ?? '');
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -105,6 +106,7 @@ export function ProfileForm({ profile }: { profile: User & { skin_tone?: string 
     formData.set('avatar_url', avatar);
     formData.set('skin_tone', skinTone);
     formData.set('timezone', timezone);
+    formData.set('bio', bio);
     setPending(true);
     try {
       const r = await updateProfile(formData);
@@ -178,6 +180,18 @@ export function ProfileForm({ profile }: { profile: User & { skin_tone?: string 
       <div className="space-y-1.5">
         <Label htmlFor="full_name">Full name</Label>
         <Input id="full_name" name="full_name" defaultValue={profile.full_name} required />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="bio">One-line bio</Label>
+        <Input
+          id="bio"
+          value={bio}
+          onChange={(e) => setBio(e.target.value.slice(0, 140))}
+          placeholder="One line about you. Shown on your profile card."
+          maxLength={140}
+        />
+        <p className="text-[11px] text-[var(--color-fg-dim)]">{bio.length} / 140</p>
       </div>
 
       <div className="space-y-1.5">

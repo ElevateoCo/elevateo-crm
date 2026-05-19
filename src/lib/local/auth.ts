@@ -55,6 +55,7 @@ export async function signUpUser(
     avatar_url: null,
     skin_tone: null,
     timezone: null,
+    bio: null,
     cold_call_goal: 40,
     division_id: null,
     divisions: [],

@@ -1,14 +1,20 @@
+'use client';
+
+import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { initials } from '@/lib/utils';
 import type { User } from '@/lib/supabase/types';
+import { ProfileCardDialog } from './profile-card';
 
 export function UserPill({
   user,
   size = 'sm',
 }: {
-  user: Pick<User, 'full_name' | 'email' | 'avatar_url'> | null | undefined;
+  user: User | null | undefined;
   size?: 'xs' | 'sm';
 }) {
+  const [open, setOpen] = useState(false);
+
   if (!user) {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs text-[var(--color-fg-dim)]">
@@ -21,12 +27,24 @@ export function UserPill({
   }
   const name = user.full_name || user.email;
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <Avatar className={size === 'xs' ? 'h-5 w-5' : 'h-6 w-6'}>
-        {user.avatar_url ? <AvatarImage src={user.avatar_url} alt={name} /> : null}
-        <AvatarFallback>{initials(name)}</AvatarFallback>
-      </Avatar>
-      <span className={size === 'xs' ? 'text-[11px]' : 'text-xs'}>{name}</span>
-    </span>
+    <>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setOpen(true);
+        }}
+        className="inline-flex items-center gap-1.5 rounded hover:opacity-80 transition cursor-pointer"
+        title={`Open ${name}'s profile`}
+      >
+        <Avatar className={size === 'xs' ? 'h-5 w-5' : 'h-6 w-6'}>
+          {user.avatar_url ? <AvatarImage src={user.avatar_url} alt={name} /> : null}
+          <AvatarFallback>{initials(name)}</AvatarFallback>
+        </Avatar>
+        <span className={size === 'xs' ? 'text-[11px]' : 'text-xs'}>{name}</span>
+      </button>
+      <ProfileCardDialog user={user} open={open} onOpenChange={setOpen} />
+    </>
   );
 }
