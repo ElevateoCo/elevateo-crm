@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,18 @@ export function ProjectForm({
   const [division, setDivision] = useState<string>(existing?.division_id ?? '');
   const [lead, setLead] = useState<string>(existing?.lead_id ?? '');
   const [status, setStatus] = useState<string>(existing?.status ?? 'planning');
+  const divisionCode = useMemo(
+    () => divisions.find((item) => item.id === division)?.code ?? null,
+    [division, divisions],
+  );
+  const divisionUsers = useMemo(() => {
+    if (!division || !divisionCode) return [];
+    return users.filter((user) => {
+      if (!user.is_active) return false;
+      if (user.division_id === division) return true;
+      return Array.isArray(user.divisions) && user.divisions.includes(divisionCode);
+    });
+  }, [division, divisionCode, users]);
 
   async function onSubmit(formData: FormData) {
     if (client) formData.set('client_id', client);
@@ -104,14 +116,20 @@ export function ProjectForm({
           <Label>Lead</Label>
           <Select value={lead} onValueChange={setLead}>
             <SelectTrigger>
-              <SelectValue placeholder="Unassigned" />
+              <SelectValue placeholder={division ? 'Unassigned' : 'Pick division first'} />
             </SelectTrigger>
             <SelectContent>
-              {users.map((u) => (
-                <SelectItem key={u.id} value={u.id}>
-                  {u.full_name || u.email}
-                </SelectItem>
-              ))}
+              {divisionUsers.length === 0 ? (
+                <div className="px-3 py-2 text-[12px] text-[var(--color-fg-dim)]">
+                  {division ? 'No people in this division' : 'Pick a division first'}
+                </div>
+              ) : (
+                divisionUsers.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.full_name || u.email}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -134,18 +152,24 @@ export function ProjectForm({
       <div className="space-y-1.5">
         <Label>Members</Label>
         <div className="max-h-44 overflow-y-auto rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 space-y-1.5">
-          {users.map((u) => (
-            <label key={u.id} className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-[var(--color-surface-3)]">
-              <input
-                type="checkbox"
-                name="member_ids"
-                value={u.id}
-                defaultChecked={selectedMemberIds.includes(u.id)}
-                className="h-4 w-4"
-              />
-              <span className="truncate">{u.full_name || u.email}</span>
-            </label>
-          ))}
+          {divisionUsers.length === 0 ? (
+            <div className="px-2 py-1 text-[12px] text-[var(--color-fg-dim)]">
+              {division ? 'No people in this division' : 'Pick a division first'}
+            </div>
+          ) : (
+            divisionUsers.map((u) => (
+              <label key={u.id} className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-[var(--color-surface-3)]">
+                <input
+                  type="checkbox"
+                  name="member_ids"
+                  value={u.id}
+                  defaultChecked={selectedMemberIds.includes(u.id)}
+                  className="h-4 w-4"
+                />
+                <span className="truncate">{u.full_name || u.email}</span>
+              </label>
+            ))
+          )}
         </div>
         <p className="text-[11px] text-[var(--color-fg-dim)]">
           One lead owns the project. Members are the people working on it.

@@ -27,6 +27,10 @@ function parseClientPayload(formData: FormData) {
   });
 }
 
+function isMissingClientMembersTable(error: { message?: string } | null | undefined) {
+  return (error?.message ?? '').includes("Could not find the table 'public.client_members'");
+}
+
 export async function createClientRecord(formData: FormData) {
   const { profile } = await requireCurrentUser();
   const parsed = parseClientPayload(formData);
@@ -63,7 +67,7 @@ export async function createClientRecord(formData: FormData) {
         user_id,
       })),
     );
-    if (memberError) return { error: memberError.message };
+    if (memberError && !isMissingClientMembersTable(memberError)) return { error: memberError.message };
   }
 
   await supabase.from('activity_log').insert({
@@ -138,7 +142,9 @@ export async function updateClient(id: string, formData: FormData) {
     .from('client_members')
     .delete()
     .eq('client_id', id);
-  if (deleteMembersError) return { error: deleteMembersError.message };
+  if (deleteMembersError && !isMissingClientMembersTable(deleteMembersError)) {
+    return { error: deleteMembersError.message };
+  }
   if (memberIds.length) {
     const { error: memberError } = await supabase.from('client_members').insert(
       memberIds.map((user_id) => ({
@@ -146,7 +152,7 @@ export async function updateClient(id: string, formData: FormData) {
         user_id,
       })),
     );
-    if (memberError) return { error: memberError.message };
+    if (memberError && !isMissingClientMembersTable(memberError)) return { error: memberError.message };
   }
 
   await supabase.from('activity_log').insert({

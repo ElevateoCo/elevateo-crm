@@ -14,6 +14,14 @@ import type {
 
 const TASK_ARCHIVE_AGE_MS = 14 * 24 * 60 * 60 * 1000;
 
+function isMissingTableError(error: { message?: string } | null | undefined) {
+  const message = error?.message ?? '';
+  return (
+    message.includes("Could not find the table 'public.client_members'") ||
+    message.includes("Could not find the table 'public.project_members'")
+  );
+}
+
 function isArchivedTask(task: Task): boolean {
   if (task.status !== 'done') return false;
   const reference = task.completed_at ?? task.updated_at ?? task.created_at;
@@ -91,31 +99,35 @@ export async function getProject(id: string): Promise<Project | null> {
 
 export async function getClientMembers(clientId: string): Promise<ClientMember[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('client_members')
     .select('*')
     .eq('client_id', clientId);
+  if (isMissingTableError(error)) return [];
   return (data ?? []) as ClientMember[];
 }
 
 export async function getProjectMembers(projectId: string): Promise<ProjectMember[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('project_members')
     .select('*')
     .eq('project_id', projectId);
+  if (isMissingTableError(error)) return [];
   return (data ?? []) as ProjectMember[];
 }
 
 export async function getAllClientMembers(): Promise<ClientMember[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from('client_members').select('*');
+  const { data, error } = await supabase.from('client_members').select('*');
+  if (isMissingTableError(error)) return [];
   return (data ?? []) as ClientMember[];
 }
 
 export async function getAllProjectMembers(): Promise<ProjectMember[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from('project_members').select('*');
+  const { data, error } = await supabase.from('project_members').select('*');
+  if (isMissingTableError(error)) return [];
   return (data ?? []) as ProjectMember[];
 }
 

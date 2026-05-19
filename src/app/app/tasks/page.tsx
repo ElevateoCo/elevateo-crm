@@ -71,6 +71,8 @@ export default async function TasksPage({
     tasks = tasks.filter(
       (t) => t.status === 'review_pending' && t.reviewer_id === profile.id
     );
+  const activeTasks = tasks.filter((task) => task.status !== 'done');
+  const completedTasks = tasks.filter((task) => task.status === 'done');
 
   const filters: { label: string; key: string }[] = [
     { label: 'My team', key: '' },
@@ -160,14 +162,31 @@ export default async function TasksPage({
           {tasks.length === 0 ? (
             <PixelPet />
           ) : (
-            tasks.map((t) => (
-              <TaskRow
-                key={t.id}
-                task={t}
-                users={userMap}
-                showProject={projectMap.get(t.project_id)?.title}
-              />
-            ))
+            <>
+              {activeTasks.map((t) => (
+                <TaskRow
+                  key={t.id}
+                  task={t}
+                  users={userMap}
+                  showProject={projectMap.get(t.project_id)?.title}
+                />
+              ))}
+              {completedTasks.length ? (
+                <details className="group">
+                  <summary className="list-none cursor-pointer px-4 py-3 text-sm text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-2)] transition border-t border-[var(--color-border)]">
+                    Completed tasks ({completedTasks.length})
+                  </summary>
+                  {completedTasks.map((t) => (
+                    <TaskRow
+                      key={t.id}
+                      task={t}
+                      users={userMap}
+                      showProject={projectMap.get(t.project_id)?.title}
+                    />
+                  ))}
+                </details>
+              ) : null}
+            </>
           )}
         </Card>
       </div>

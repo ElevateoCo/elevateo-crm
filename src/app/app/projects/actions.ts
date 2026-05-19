@@ -30,6 +30,10 @@ function parseProjectPayload(formData: FormData) {
   });
 }
 
+function isMissingProjectMembersTable(error: { message?: string } | null | undefined) {
+  return (error?.message ?? '').includes("Could not find the table 'public.project_members'");
+}
+
 export async function createProject(formData: FormData) {
   const { profile } = await requireCurrentUser();
   const parsed = parseProjectPayload(formData);
@@ -62,7 +66,7 @@ export async function createProject(formData: FormData) {
         user_id,
       })),
     );
-    if (memberError) return { error: memberError.message };
+    if (memberError && !isMissingProjectMembersTable(memberError)) return { error: memberError.message };
   }
 
   await supabase.from('activity_log').insert({
@@ -142,7 +146,9 @@ export async function updateProject(id: string, formData: FormData) {
     .from('project_members')
     .delete()
     .eq('project_id', id);
-  if (deleteMembersError) return { error: deleteMembersError.message };
+  if (deleteMembersError && !isMissingProjectMembersTable(deleteMembersError)) {
+    return { error: deleteMembersError.message };
+  }
   if (memberIds.length) {
     const { error: memberError } = await supabase.from('project_members').insert(
       memberIds.map((user_id) => ({
@@ -150,7 +156,7 @@ export async function updateProject(id: string, formData: FormData) {
         user_id,
       })),
     );
-    if (memberError) return { error: memberError.message };
+    if (memberError && !isMissingProjectMembersTable(memberError)) return { error: memberError.message };
   }
 
   await supabase.from('activity_log').insert({
