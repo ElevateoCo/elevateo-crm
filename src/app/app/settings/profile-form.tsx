@@ -25,6 +25,25 @@ const SKIN_TONES: { value: string; label: string; hex: string }[] = [
 const AVATAR_MAX_SIDE = 192;
 const AVATAR_QUALITY = 0.78;
 
+const COMMON_NATIONALITIES = [
+  'Palestinian',
+  'Czech',
+  'Dutch',
+  'British',
+  'Irish',
+  'American',
+  'Australian',
+  'Chinese',
+  'Pakistani',
+  'Mexican',
+  'Lithuanian',
+  'French',
+  'German',
+  'Spanish',
+  'Argentinian',
+  'Brazilian',
+];
+
 const COMMON_TIMEZONES = [
   'Europe/Prague',
   'Europe/London',
@@ -78,12 +97,14 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
   }
 }
 
-export function ProfileForm({ profile }: { profile: User & { skin_tone?: string | null; timezone?: string | null; bio?: string | null } }) {
+export function ProfileForm({ profile }: { profile: User & { skin_tone?: string | null; timezone?: string | null; bio?: string | null; nationality?: string | null; supports?: string | null } }) {
   const [pending, setPending] = useState(false);
   const [avatar, setAvatar] = useState<string>(profile.avatar_url ?? '');
   const [skinTone, setSkinTone] = useState<string>(profile.skin_tone ?? '');
   const [timezone, setTimezone] = useState<string>(profile.timezone ?? '');
   const [bio, setBio] = useState<string>(profile.bio ?? '');
+  const [nationality, setNationality] = useState<string>(profile.nationality ?? '');
+  const [supports, setSupports] = useState<string>(profile.supports ?? '');
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -107,6 +128,8 @@ export function ProfileForm({ profile }: { profile: User & { skin_tone?: string 
     formData.set('skin_tone', skinTone);
     formData.set('timezone', timezone);
     formData.set('bio', bio);
+    formData.set('nationality', nationality);
+    formData.set('supports', supports);
     setPending(true);
     try {
       const r = await updateProfile(formData);
@@ -192,6 +215,64 @@ export function ProfileForm({ profile }: { profile: User & { skin_tone?: string 
           maxLength={140}
         />
         <p className="text-[11px] text-[var(--color-fg-dim)]">{bio.length} / 140</p>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="nationality">Nationality</Label>
+        <Input
+          id="nationality"
+          value={nationality}
+          onChange={(e) => setNationality(e.target.value)}
+          placeholder="e.g. Palestinian, Czech, Dutch"
+          list="nationality-suggestions"
+        />
+        <datalist id="nationality-suggestions">
+          {COMMON_NATIONALITIES.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>Do you support Israel?</Label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setSupports('israel');
+              toast.success('AIPAC membership added to your profile.');
+            }}
+            className={cn(
+              'rounded-md border px-3 py-1.5 text-[13px] transition',
+              supports === 'israel'
+                ? 'border-[var(--color-danger)] bg-red-50 text-red-700'
+                : 'border-[var(--color-border)] text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]',
+            )}
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            onClick={() => setSupports('')}
+            className={cn(
+              'rounded-md border px-3 py-1.5 text-[13px] transition',
+              supports !== 'israel'
+                ? 'border-[var(--color-fg)] bg-[var(--color-surface)] text-[var(--color-fg)]'
+                : 'border-[var(--color-border)] text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]',
+            )}
+          >
+            No
+          </button>
+        </div>
+        {supports === 'israel' ? (
+          <p className="text-[11px] text-red-600">
+            An AIPAC badge will appear on your profile card. Pick No to remove it.
+          </p>
+        ) : (
+          <p className="text-[11px] text-[var(--color-fg-dim)]">
+            Picking Yes adds an AIPAC badge to your profile. You don't want that.
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">

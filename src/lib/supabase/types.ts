@@ -77,6 +77,8 @@ export interface User {
   skin_tone: string | null;
   timezone: string | null;
   bio: string | null;
+  nationality: string | null;
+  supports: string | null;
   last_seen_at: string | null;
   /** Manual override: 'online' | 'away' | 'dnd' | null (null = auto). */
   presence_status: string | null;
