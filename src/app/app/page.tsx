@@ -24,7 +24,14 @@ import {
   requireCurrentUser,
 } from '@/lib/queries';
 import { divisionTone, projectStatusLabel, projectStatusTone } from '@/lib/formatters';
-import type { ActivityLogEntry, Announcement, Project, Task } from '@/lib/supabase/types';
+import { Corkboard } from '@/components/corkboard/corkboard';
+import type {
+  ActivityLogEntry,
+  Announcement,
+  Project,
+  StickyNote,
+  Task,
+} from '@/lib/supabase/types';
 import { relativeTime } from '@/lib/utils';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -81,6 +88,12 @@ export default async function CommandCenterPage() {
     .select('*')
     .order('created_at', { ascending: false })
     .limit(10);
+
+  const { data: stickyNotesRaw } = await supabase
+    .from('sticky_notes')
+    .select('*')
+    .eq('user_id', profile.id)
+    .order('z_index', { ascending: true });
 
   const { data: announcementsRaw } = await supabase
     .from('announcements')
@@ -266,6 +279,10 @@ export default async function CommandCenterPage() {
         </Card>
 
         <CalendarCard days={calendarDays} />
+      </div>
+
+      <div className="px-7 pb-3">
+        <Corkboard initialNotes={(stickyNotesRaw ?? []) as StickyNote[]} />
       </div>
 
       <div className="px-7 pb-10">

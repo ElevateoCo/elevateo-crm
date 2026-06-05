@@ -86,6 +86,23 @@ export interface HabitCompletion {
   created_at: string;
 }
 
+export interface StickyNote {
+  id: string;
+  user_id: string;
+  body: string;
+  color: string;
+  /** Position as a percentage of the cork board area (0-100). */
+  x: number;
+  y: number;
+  /** Size in pixels. */
+  w: number;
+  h: number;
+  rotation: number;
+  z_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Division {
   id: string;
   code: DivisionCode;
@@ -232,6 +249,7 @@ export interface WeeklyReport {
   status: WeeklyReportStatus;
   submitted_at: string | null;
   reviewed_at: string | null;
+  archived_at: string | null;
   created_at: string;
   updated_at: string;
 }

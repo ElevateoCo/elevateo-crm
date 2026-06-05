@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, GanttChartSquare } from 'lucide-react';
+import { Plus, GanttChartSquare, LayoutGrid, List } from 'lucide-react';
 import { PageHeader } from '@/components/shell/page-header';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -28,9 +28,10 @@ import { formatDate } from '@/lib/utils';
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; view?: string }>;
 }) {
-  const { filter = 'current' } = await searchParams;
+  const { filter = 'current', view = 'list' } = await searchParams;
+  const isGrid = view === 'grid';
   const { profile } = await requireCurrentUser();
   const [projects, clients, divisions, users, clientMembers, projectMembers] = await Promise.all([
     getProjects(),
@@ -94,7 +95,7 @@ export default async function ProjectsPage({
           return (
             <Link
               key={item.key}
-              href={`/app/projects?filter=${item.key}`}
+              href={`/app/projects?filter=${item.key}&view=${view}`}
               className={`text-xs px-2.5 py-1 rounded-md border ${
                 active
                   ? 'bg-[var(--color-surface-3)] border-[var(--color-border-strong)]'
@@ -105,24 +106,91 @@ export default async function ProjectsPage({
             </Link>
           );
         })}
+        <div className="ml-auto flex items-center gap-1">
+          <Link
+            href={`/app/projects?filter=${filter}&view=list`}
+            aria-label="List view"
+            className={`p-1.5 rounded-md border ${
+              !isGrid
+                ? 'bg-[var(--color-surface-3)] border-[var(--color-border-strong)]'
+                : 'border-[var(--color-border)] text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-2)]'
+            }`}
+          >
+            <List className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href={`/app/projects?filter=${filter}&view=grid`}
+            aria-label="Grid view"
+            className={`p-1.5 rounded-md border ${
+              isGrid
+                ? 'bg-[var(--color-surface-3)] border-[var(--color-border-strong)]'
+                : 'border-[var(--color-border)] text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-2)]'
+            }`}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </div>
 
       <div className="p-6 pt-2">
-        <Card>
-          <div className="grid grid-cols-[1fr_140px_140px_140px_140px_110px] text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)] px-4 py-2 border-b border-[var(--color-border)]">
-            <div>Title</div>
-            <div>Client</div>
-            <div>Division</div>
-            <div>Lead</div>
-            <div>Status</div>
-            <div className="text-right">Due</div>
-          </div>
-          {visibleProjects.length === 0 ? (
+        {visibleProjects.length === 0 ? (
+          <Card>
             <div className="px-4 py-10 text-center text-sm text-[var(--color-fg-dim)]">
               No projects match this filter.
             </div>
-          ) : (
-            visibleProjects.map((p) => {
+          </Card>
+        ) : isGrid ? (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+            {visibleProjects.map((p) => {
+              const client = p.client_id ? clientMap.get(p.client_id) : null;
+              const div = p.division_id ? divMap.get(p.division_id) : null;
+              const lead = p.lead_id ? userMap.get(p.lead_id) : null;
+              return (
+                <Link
+                  key={p.id}
+                  href={`/app/projects/${p.id}`}
+                  className="flex aspect-square flex-col rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-surface-3)]">
+                      <GanttChartSquare className="h-4 w-4 text-[var(--color-fg-muted)]" />
+                    </div>
+                    <Badge tone={projectStatusTone[p.status]}>{projectStatusLabel[p.status]}</Badge>
+                  </div>
+                  <div className="mt-3 flex-1">
+                    <div className="line-clamp-2 text-sm font-semibold text-[var(--color-fg)]">
+                      {p.title}
+                    </div>
+                    <div className="mt-0.5 truncate text-xs text-[var(--color-fg-muted)]">
+                      {client?.name ?? 'Internal'}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    {div ? (
+                      <Badge tone={divisionTone[div.code] as any}>{div.name}</Badge>
+                    ) : (
+                      <span className="text-[11px] text-[var(--color-fg-dim)]">—</span>
+                    )}
+                    <UserPill user={lead ?? null} size="xs" />
+                  </div>
+                  <div className="mt-2 text-[11px] text-[var(--color-fg-dim)]">
+                    {p.due_date ? `Due ${formatDate(p.due_date)}` : 'No due date'}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <Card>
+            <div className="grid grid-cols-[1fr_140px_140px_140px_140px_110px] text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)] px-4 py-2 border-b border-[var(--color-border)]">
+              <div>Title</div>
+              <div>Client</div>
+              <div>Division</div>
+              <div>Lead</div>
+              <div>Status</div>
+              <div className="text-right">Due</div>
+            </div>
+            {visibleProjects.map((p) => {
               const client = p.client_id ? clientMap.get(p.client_id) : null;
               const div = p.division_id ? divMap.get(p.division_id) : null;
               const lead = p.lead_id ? userMap.get(p.lead_id) : null;
@@ -159,9 +227,9 @@ export default async function ProjectsPage({
                   </div>
                 </Link>
               );
-            })
-          )}
-        </Card>
+            })}
+          </Card>
+        )}
       </div>
     </div>
   );

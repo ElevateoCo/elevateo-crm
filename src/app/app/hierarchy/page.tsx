@@ -21,8 +21,8 @@ const tree: Node = {
       tag: 'core',
       children: [
         {
-          name: 'Roy Neven',
-          role: 'Sales Owner (RSM, Netherlands)',
+          name: 'Lachlan Macdonald',
+          role: 'Sales Owner (CCO, Buenos Aires + AUS coverage)',
           tag: 'core',
           children: [
             {
@@ -50,7 +50,6 @@ const tree: Node = {
               tag: 'core',
               children: [{ name: 'Leo Ioannidis', role: 'Candidate', tag: 'candidate' }],
             },
-            { name: 'Lachlan Macdonald', role: 'CCO / RSM (Buenos Aires + AUS coverage)', tag: 'core' },
             { name: 'Lewis Hayward', role: 'RSM (GMT, UK)', tag: 'core' },
             { name: 'James Taylor', role: 'Sales & Marketing (Ireland)', tag: 'core' },
             {
@@ -175,29 +174,45 @@ const dotColor: Record<Node['tag'], string> = {
   candidate: '#7c3aed',
 };
 
-function TreeList({ nodes }: { nodes: Node[] }) {
+const tagLabel: Record<Node['tag'], string> = {
+  core: 'Core team',
+  external: 'External',
+  reservist: 'Reservist',
+  partner: 'Partner',
+  candidate: 'Candidate',
+};
+
+function Dot({ tag }: { tag: Node['tag'] }) {
   return (
-    <ul className="m-0 pl-3.5 ml-6 border-l border-[#dddddd]">
+    <span
+      className="inline-block h-2 w-2 shrink-0 rounded-full"
+      style={{ background: dotColor[tag] }}
+    />
+  );
+}
+
+/** Renders people under an owner, with subtle reporting lines for nesting. */
+function TreeList({ nodes, depth = 0 }: { nodes: Node[]; depth?: number }) {
+  return (
+    <ul
+      className={
+        depth === 0
+          ? 'm-0 list-none space-y-1.5 p-0'
+          : 'm-0 mt-1.5 list-none space-y-1.5 border-l border-[var(--color-border)] pl-3.5'
+      }
+    >
       {nodes.map((node, i) => (
-        <li key={i} className="my-1.5 pl-2">
-          {node.name === '__SECTION__' ? (
-            <div className="mt-3">
-              <span className="inline-block bg-[#f1f1f1] border border-[#dddddd] rounded-full px-2.5 py-[3px] text-[13px] uppercase tracking-wide text-[#333]">
-                {node.role}
-              </span>
-              {node.children?.length ? <TreeList nodes={node.children} /> : null}
-            </div>
-          ) : (
-            <>
-              <span
-                className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
-                style={{ background: dotColor[node.tag] }}
-              />
-              <strong className="font-bold text-[var(--color-fg)]">{node.name}</strong>
-              <span className="text-[var(--color-fg-muted)]"> - {node.role}</span>
-              {node.children?.length ? <TreeList nodes={node.children} /> : null}
-            </>
-          )}
+        <li key={i}>
+          <div className="flex items-baseline gap-2">
+            <span className="translate-y-[3px]">
+              <Dot tag={node.tag} />
+            </span>
+            <span className="text-[13px] leading-snug">
+              <span className="font-semibold text-[var(--color-fg)]">{node.name}</span>
+              <span className="text-[var(--color-fg-muted)]"> — {node.role}</span>
+            </span>
+          </div>
+          {node.children?.length ? <TreeList nodes={node.children} depth={depth + 1} /> : null}
         </li>
       ))}
     </ul>
@@ -205,69 +220,42 @@ function TreeList({ nodes }: { nodes: Node[] }) {
 }
 
 export default function HierarchyPage() {
+  const divisions = (tree.children ?? []).filter((node) => node.name === '__SECTION__');
+
   return (
     <div>
       <PageHeader
         title="Company hierarchy"
-        description="Simple linear hierarchy. Allan is CEO. Under him are the division owners. Under each division owner are the people in that lane."
+        description="Allan is CEO. Under him sit the division owners, and under each owner are the people in that lane."
       />
 
-      <div className="p-7">
-        <Card className="p-6 bg-white">
-          <p className="m-0 mb-[18px] text-[#555555] text-[14px]">
-            <span className="mr-[18px] whitespace-nowrap">
-              <span
-                className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
-                style={{ background: dotColor.core }}
-              />
-              Core team
-            </span>
-            <span className="mr-[18px] whitespace-nowrap">
-              <span
-                className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
-                style={{ background: dotColor.external }}
-              />
-              External
-            </span>
-            <span className="mr-[18px] whitespace-nowrap">
-              <span
-                className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
-                style={{ background: dotColor.reservist }}
-              />
-              Reservist
-            </span>
-            <span className="mr-[18px] whitespace-nowrap">
-              <span
-                className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
-                style={{ background: dotColor.partner }}
-              />
-              Partner
-            </span>
-            <span className="mr-[18px] whitespace-nowrap">
-              <span
-                className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
-                style={{ background: dotColor.candidate }}
-              />
-              Candidate
-            </span>
-          </p>
-
-          <div
-            className="border border-[var(--color-border)] rounded-lg p-[22px] bg-white shadow-[0_8px_22px_rgba(0,0,0,0.06)] text-[15px] leading-[1.5] text-[var(--color-fg-muted)]"
-            style={{ fontFamily: 'Arial, sans-serif' }}
-          >
-            <ul className="m-0 p-0 list-none">
-              <li className="my-1.5">
-                <span
-                  className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
-                  style={{ background: dotColor.core }}
-                />
-                <strong className="font-bold text-[var(--color-fg)]">{tree.name}</strong> - {tree.role}
-                {tree.children?.length ? <TreeList nodes={tree.children} /> : null}
-              </li>
-            </ul>
+      <div className="space-y-4 p-7">
+        <Card className="flex items-center gap-3 p-5">
+          <Dot tag="core" />
+          <div>
+            <div className="text-[15px] font-semibold text-[var(--color-fg)]">{tree.name}</div>
+            <div className="text-[12px] text-[var(--color-fg-muted)]">{tree.role}</div>
           </div>
         </Card>
+
+        <div className="flex flex-wrap gap-x-5 gap-y-2">
+          {(Object.keys(tagLabel) as Node['tag'][]).map((tag) => (
+            <span key={tag} className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-fg-muted)]">
+              <Dot tag={tag} /> {tagLabel[tag]}
+            </span>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {divisions.map((division, i) => (
+            <Card key={i} className="p-5">
+              <h2 className="mb-3 text-[14px] font-semibold text-[var(--color-fg)]">{division.role}</h2>
+              {division.children?.length ? <TreeList nodes={division.children} /> : (
+                <p className="text-[12px] text-[var(--color-fg-dim)]">No one assigned yet.</p>
+              )}
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

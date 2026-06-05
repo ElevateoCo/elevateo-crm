@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { PageHeader } from '@/components/shell/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +24,7 @@ import type {
   WeeklyReport,
   WeeklyReportStatus,
 } from '@/lib/supabase/types';
-import { reviewWeeklyReport, upsertMyWeeklyReport } from './actions';
+import { reviewWeeklyReport, setWeeklyReportArchived, upsertMyWeeklyReport } from './actions';
 
 const statusTone: Record<WeeklyReportStatus, 'default' | 'info' | 'success'> = {
   draft: 'default',
@@ -36,9 +38,9 @@ function SummaryBlock({ title, body }: { title: string; body: string | null | un
   return (
     <div className="space-y-2">
       <div className="text-[11px] uppercase tracking-wider text-[var(--color-fg-dim)]">{title}</div>
-      <pre className="whitespace-pre-wrap rounded-xl bg-[var(--color-surface-2)] p-3 text-[12px] leading-5 text-[var(--color-fg)]">
+      <div className="whitespace-pre-wrap rounded-xl bg-[var(--color-surface-2)] p-3 font-sans text-[13px] leading-relaxed text-[var(--color-fg)]">
         {body?.trim() || 'Nothing added yet.'}
-      </pre>
+      </div>
     </div>
   );
 }
@@ -52,6 +54,11 @@ export default async function WeeklyReportsPage() {
   async function submitReview(formData: FormData) {
     'use server';
     await reviewWeeklyReport(formData);
+  }
+
+  async function submitArchive(formData: FormData) {
+    'use server';
+    await setWeeklyReportArchived(formData);
   }
 
   const { profile } = await requireCurrentUser();
@@ -80,10 +87,15 @@ export default async function WeeklyReportsPage() {
   const reportDivisions = getDivisionReportContexts(profile);
 
   const pendingReviews = reports.filter(
-    (report) => report.reviewer_id === profile.id && report.author_id !== profile.id && report.status === 'submitted',
+    (report) =>
+      report.reviewer_id === profile.id &&
+      report.author_id !== profile.id &&
+      report.status === 'submitted' &&
+      !report.archived_at,
   );
   const teamReports = reports.filter(
-    (report) => report.reviewer_id === profile.id && report.author_id !== profile.id,
+    (report) =>
+      report.reviewer_id === profile.id && report.author_id !== profile.id && !report.archived_at,
   );
 
   return (
@@ -92,9 +104,17 @@ export default async function WeeklyReportsPage() {
         title="Weekly Reports"
         description="Division-by-division weekly summaries plus manual notes. Submit each lane upward so leadership gets clean roll-ups."
         meta={
-          <span className="inline-flex items-center gap-2 text-xs text-[var(--color-fg-muted)]">
-            Week {week.startLabel} - {week.endLabel}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-xs text-[var(--color-fg-muted)]">
+              Week {week.startLabel} - {week.endLabel}
+            </span>
+            <Link
+              href="/app/reports/library"
+              className="inline-flex items-center gap-1 text-xs text-[var(--color-fg-muted)] hover:text-[var(--color-accent)]"
+            >
+              Reports library <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
         }
       />
 
@@ -215,9 +235,16 @@ export default async function WeeklyReportsPage() {
                         defaultValue={report.reviewer_summary ?? ''}
                         placeholder="Add your reviewer notes, decisions, and the clean summary that should count upward."
                       />
-                      <div className="flex justify-end">
+                      <div className="flex items-center justify-end gap-2">
                         <Button type="submit">Mark reviewed</Button>
                       </div>
+                    </form>
+                    <form action={submitArchive} className="mt-2 flex justify-end">
+                      <input type="hidden" name="report_id" value={report.id} />
+                      <input type="hidden" name="archived" value="true" />
+                      <Button type="submit" variant="ghost" size="sm">
+                        Archive
+                      </Button>
                     </form>
                   </div>
                 );
@@ -262,6 +289,7 @@ export default async function WeeklyReportsPage() {
             )}
           </CardContent>
         </Card>
+
       </div>
     </div>
   );

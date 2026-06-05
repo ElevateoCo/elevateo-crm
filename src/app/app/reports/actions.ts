@@ -35,6 +35,11 @@ const ReviewSchema = z.object({
   reviewer_summary: z.string().max(12000).optional(),
 });
 
+const ArchiveSchema = z.object({
+  report_id: z.string().uuid(),
+  archived: z.enum(['true', 'false']),
+});
+
 async function loadWeeklyContext() {
   const supabase = await createClient();
   const week = getCurrentWeekRange();
@@ -230,5 +235,34 @@ export async function reviewWeeklyReport(formData: FormData) {
 
   revalidatePath('/app/reports');
   revalidatePath('/app/inbox');
+  return { ok: true };
+}
+
+export async function setWeeklyReportArchived(formData: FormData) {
+  const { profile } = await requireCurrentUser();
+  const parsed = ArchiveSchema.safeParse({
+    report_id: formData.get('report_id'),
+    archived: formData.get('archived'),
+  });
+  if (!parsed.success) return { error: 'Invalid archive input.' };
+
+  const supabase = await createClient();
+  const { data: report, error: loadError } = await supabase
+    .from('weekly_reports')
+    .select('id, reviewer_id, author_id')
+    .eq('id', parsed.data.report_id)
+    .maybeSingle();
+  if (loadError || !report) return { error: loadError?.message ?? 'Report not found.' };
+  if (report.reviewer_id !== profile.id && report.author_id !== profile.id) {
+    return { error: 'Not authorized to archive this report.' };
+  }
+
+  const { error } = await supabase
+    .from('weekly_reports')
+    .update({ archived_at: parsed.data.archived === 'true' ? new Date().toISOString() : null })
+    .eq('id', report.id);
+  if (error) return { error: error.message };
+
+  revalidatePath('/app/reports');
   return { ok: true };
 }
