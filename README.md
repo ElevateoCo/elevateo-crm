@@ -1,6 +1,6 @@
-# Elevateoco CRM
+# Elevateo Bureau
 
-Hierarchy, projects, tasks, approvals - built for Elevateoco. Light, calm, Apple-style UI on top of a strict approval-gated workflow.
+Elevateoco's CRM and operations workspace. Hierarchy, projects, tasks, approvals, and reporting in one place.
 
 ## Stack
 

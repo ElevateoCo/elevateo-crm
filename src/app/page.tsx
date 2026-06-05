@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -15,7 +16,7 @@ export default async function Home() {
       <header className="border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 backdrop-blur px-6 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Logo />
-          <span className="font-semibold text-[15px] tracking-tight">Elevateoco</span>
+          <span className="font-semibold text-[15px] tracking-tight">Elevateo Bureau</span>
         </div>
         <div className="flex gap-2">
           <Button asChild size="sm">
@@ -42,7 +43,7 @@ export default async function Home() {
         </div>
       </main>
       <footer className="px-6 py-4 text-[12px] text-[var(--color-fg-dim)] text-center">
-        © Elevateoco
+        &copy; Elevateoco
       </footer>
     </div>
   );
@@ -50,8 +51,15 @@ export default async function Home() {
 
 function Logo() {
   return (
-    <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[#5ac8fa] flex items-center justify-center text-white font-semibold text-sm shadow-[0_2px_6px_rgba(0,113,227,0.25)]">
-      E
+    <div className="h-8 w-8 overflow-hidden rounded-xl border border-black/10 bg-[#f6f4f0] shadow-[0_2px_6px_rgba(0,0,0,0.12)]">
+      <Image
+        src="/branding/elevateo-bureau/transparent-icon.png"
+        alt=""
+        width={32}
+        height={32}
+        className="h-full w-full object-cover"
+        priority
+      />
     </div>
   );
 }

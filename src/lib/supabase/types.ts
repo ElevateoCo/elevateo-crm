@@ -1,6 +1,9 @@
 // Hand-written types matching supabase/migrations/0001_init.sql.
 // If the schema drifts, regenerate with `supabase gen types typescript`.
 
+import type { Library, LibraryAccess } from '@/lib/library/types';
+export type { Library, LibraryAccess } from '@/lib/library/types';
+
 export type DivisionCode = 'sales' | 'marketing' | 'technology' | 'ecommerce' | 'admin';
 export type UserRole = 'owner' | 'executive' | 'lead' | 'member' | 'reservist' | 'external';
 export type ClientStatus = 'prospect' | 'active' | 'paused' | 'archived';
@@ -296,6 +299,12 @@ export interface Database {
         Row: ChatReadState;
         Insert: Partial<ChatReadState>;
         Update: Partial<ChatReadState>;
+      };
+      libraries: { Row: Library; Insert: Partial<Library>; Update: Partial<Library> };
+      library_access: {
+        Row: LibraryAccess;
+        Insert: Partial<LibraryAccess>;
+        Update: Partial<LibraryAccess>;
       };
     };
     Views: Record<string, never>;

@@ -80,10 +80,10 @@ export function Sidebar({
     <nav className="h-screen sticky top-0 flex flex-col bg-[var(--color-surface)]">
       <div className="px-4 py-3.5 border-b border-[var(--color-border)]">
         <Link href="/app" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl border border-[var(--color-border)] bg-white shadow-[0_2px_6px_rgba(15,23,42,0.08)]">
+          <div className="flex h-8 w-8 items-center justify-center">
             <Image
-              src="/elevateo-logo.png"
-              alt="Elevateo logo"
+              src="/branding/elevateo-bureau/transparent-icon.png"
+              alt="Elevateo Bureau"
               width={32}
               height={32}
               className="h-8 w-8 object-contain"
@@ -91,8 +91,8 @@ export function Sidebar({
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-[14px] font-semibold leading-none tracking-tight">Elevateoco</span>
-            <span className="text-[11px] text-[var(--color-fg-dim)] mt-1">CRM</span>
+            <span className="text-[14px] font-semibold leading-none tracking-tight">Elevateo Bureau</span>
+            <span className="text-[11px] text-[var(--color-fg-dim)] mt-1">CRM &amp; Operations</span>
           </div>
         </Link>
       </div>

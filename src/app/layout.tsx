@@ -7,8 +7,8 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Elevateoco CRM',
-  description: 'Hierarchy, projects, tasks, approvals — built for Elevateoco.',
+  title: 'Elevateo Bureau',
+  description: 'Elevateoco CRM and operations workspace.',
 };
 
 const THEME_INIT_SCRIPT = `
