@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { initials } from '@/lib/utils';
 import type { User } from '@/lib/supabase/types';
 import { ProfileCardDialog } from './profile-card';
+import { PresenceDot } from './presence-dot';
 
 export function UserPill({
   user,
@@ -38,10 +39,13 @@ export function UserPill({
         className="inline-flex items-center gap-1.5 rounded hover:opacity-80 transition cursor-pointer"
         title={`Open ${name}'s profile`}
       >
-        <Avatar className={size === 'xs' ? 'h-5 w-5' : 'h-6 w-6'}>
-          {user.avatar_url ? <AvatarImage src={user.avatar_url} alt={name} /> : null}
-          <AvatarFallback>{initials(name)}</AvatarFallback>
-        </Avatar>
+        <span className="relative inline-flex">
+          <Avatar className={size === 'xs' ? 'h-5 w-5' : 'h-6 w-6'}>
+            {user.avatar_url ? <AvatarImage src={user.avatar_url} alt={name} /> : null}
+            <AvatarFallback>{initials(name)}</AvatarFallback>
+          </Avatar>
+          <PresenceDot user={user} size={size === 'xs' ? 8 : 9} />
+        </span>
         <span className={size === 'xs' ? 'text-[11px]' : 'text-xs'}>{name}</span>
       </button>
       <ProfileCardDialog user={user} open={open} onOpenChange={setOpen} />

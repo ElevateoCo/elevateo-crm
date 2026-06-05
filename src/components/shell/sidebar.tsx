@@ -26,6 +26,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { Division, User } from '@/lib/supabase/types';
+import { isAdminUser, isCoreMember } from '@/lib/access';
 
 type NavItem = {
   href: string;
@@ -71,10 +72,8 @@ export function Sidebar({
   user: User | null;
 }) {
   const pathname = usePathname();
-  const isAdmin =
-    user &&
-    (user.role === 'owner' ||
-      divisions.find((d) => d.id === user.division_id)?.code === 'admin');
+  const isAdmin = isAdminUser(user, divisions);
+  const canAccessReports = !!user;
 
   return (
     <nav className="h-screen sticky top-0 flex flex-col bg-[var(--color-surface)]">
@@ -150,6 +149,28 @@ export function Sidebar({
             </div>
           ))}
         </div>
+
+        {canAccessReports ? (
+          <div className="mt-6 px-2">
+            <div className="text-[11px] font-medium text-[var(--color-fg-dim)] px-2.5 mb-1.5">
+              Team
+            </div>
+            <div className="space-y-0.5">
+              <Link
+                href="/app/reports"
+                className={cn(
+                  'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] transition',
+                  pathname?.startsWith('/app/reports')
+                    ? 'bg-[var(--color-surface-3)] text-[var(--color-fg)] font-medium'
+                    : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-3)]/70 hover:text-[var(--color-fg)]'
+                )}
+              >
+                <Sparkles className="h-4 w-4" />
+                Weekly reports
+              </Link>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-6 px-2">
           <div className="text-[11px] font-medium text-[var(--color-fg-dim)] px-2.5 mb-1.5">

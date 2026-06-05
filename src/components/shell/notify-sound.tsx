@@ -23,6 +23,7 @@ const SOUND_BY_TYPE: Record<string, string> = {
   project_assigned: '/sounds/sound-4.mp3',
   approval_pending: '/sounds/sound-5.mp3',
   announcement: '/sounds/sound-1.mp3',
+  weekly_report: '/sounds/sound-1.mp3',
 };
 const DEFAULT_SOUND = '/sounds/notify.mp3';
 

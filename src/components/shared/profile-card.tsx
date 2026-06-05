@@ -87,7 +87,6 @@ export function ProfileCardDialog({
               ) : null}
               {(() => {
                 const s = effectiveStatus(user);
-                if (s === 'offline') return null;
                 return (
                   <span className="inline-flex items-center gap-1 text-[11px] text-[var(--color-fg-muted)]">
                     <span

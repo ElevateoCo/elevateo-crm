@@ -38,5 +38,5 @@ export const statusColor: Record<EffectiveStatus, string> = {
   online: '#34c759',
   away: '#ff9f0a',
   dnd: '#ff3b30',
-  offline: 'transparent',
+  offline: 'var(--color-fg-dim)',
 };

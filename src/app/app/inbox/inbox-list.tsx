@@ -20,6 +20,7 @@ const labelByType: Record<string, string> = {
   approval_pending: 'Approval pending',
   announcement: 'Announcement',
   chat_mention: 'Chat mention',
+  weekly_report: 'Weekly report',
 };
 
 export function InboxList({

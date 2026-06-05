@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { requireCurrentUser } from '@/lib/queries';
 import type { Division } from '@/lib/supabase/types';
+import { isAdminUser, isCoreMember, isPrivilegedRole } from '@/lib/access';
 
 const UserPatch = z.object({
   full_name: z.string().min(1).optional(),
@@ -17,6 +18,7 @@ const UserPatch = z.object({
 const ADMIN_GRANTOR_EMAILS = new Set([
   'allan.chan@elevateoco.com',
   'arnis@elevateoco.com',
+  'arnis.piekus@elevateoco.com',
   'hazem.dweik@elevateoco.com',
 ]);
 
@@ -27,14 +29,40 @@ export async function updateUserAdmin(id: string, formData: FormData) {
   if (!parsed.success) return { error: 'Invalid input' };
 
   const supabase = await createClient();
-  const { data: divisions } = await supabase.from('divisions').select('id, code');
-  const adminDivisionId = ((divisions ?? []) as Pick<Division, 'id' | 'code'>[]).find(
+  const [{ data: divisions }, { data: targetUser }] = await Promise.all([
+    supabase.from('divisions').select('id, code'),
+    supabase.from('users').select('id, role, division_id').eq('id', id).maybeSingle(),
+  ]);
+  const divisionRows = (divisions ?? []) as Pick<Division, 'id' | 'code'>[];
+  const adminDivisionId = divisionRows.find(
     (division) => division.code === 'admin'
   )?.id;
+  const isAdmin = isAdminUser(profile, divisionRows);
+  const isCore = isCoreMember(profile);
   const isGrantor = ADMIN_GRANTOR_EMAILS.has(profile.email.toLowerCase());
   const isGrantingAdminPrivilege =
     parsed.data.role === 'owner' ||
     (!!adminDivisionId && parsed.data.division_id === adminDivisionId);
+  const target = targetUser as Pick<typeof profile, 'role' | 'division_id'> | null;
+
+  if (!isCore) {
+    return { error: 'Not authorized' };
+  }
+
+  if (!target) {
+    return { error: 'User not found' };
+  }
+
+  if (!isAdmin) {
+    const targetIsProtected =
+      isPrivilegedRole(target.role) || (!!adminDivisionId && target.division_id === adminDivisionId);
+    if (targetIsProtected) {
+      return { error: 'Core members cannot edit owner, executive, or admin-division users.' };
+    }
+    if (parsed.data.role && isPrivilegedRole(parsed.data.role)) {
+      return { error: 'Core members cannot assign owner or executive roles.' };
+    }
+  }
 
   if (isGrantingAdminPrivilege && !isGrantor) {
     return { error: 'Only Allan, Arnis, or Hazem can grant admin privileges.' };
@@ -60,6 +88,7 @@ export async function updateUserAdmin(id: string, formData: FormData) {
   });
 
   revalidatePath('/app/admin/people');
+  revalidatePath('/app/reports');
   revalidatePath('/app/people');
   return { ok: true };
 }

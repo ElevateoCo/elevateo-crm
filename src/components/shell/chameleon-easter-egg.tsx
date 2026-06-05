@@ -67,12 +67,15 @@ export function ChameleonEasterEgg() {
       <div
         style={{
           position: 'relative',
-          width: active ? REVEAL_WIDTH : SLIVER_WIDTH,
+          width: REVEAL_WIDTH,
           height: IMAGE_SIZE,
           borderRadius: 4,
           overflow: 'hidden',
-          transition: 'width .55s cubic-bezier(.3, 1, .3, 1)',
+          transition: 'clip-path .55s cubic-bezier(.3, 1, .3, 1), opacity .3s ease',
           opacity: active ? 1 : 0.55,
+          clipPath: active
+            ? 'inset(0 0 0 0 round 4px)'
+            : `inset(0 ${REVEAL_WIDTH - SLIVER_WIDTH}px 0 0 round 4px)`,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}

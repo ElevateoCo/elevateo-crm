@@ -1,11 +1,31 @@
 // Hand-written types matching supabase/migrations/0001_init.sql.
 // If the schema drifts, regenerate with `supabase gen types typescript`.
 
+// SOP library row types live in lib/library/types (single source of truth).
 import type { Library, LibraryAccess } from '@/lib/library/types';
 export type { Library, LibraryAccess } from '@/lib/library/types';
 
 export type DivisionCode = 'sales' | 'marketing' | 'technology' | 'ecommerce' | 'admin';
 export type UserRole = 'owner' | 'executive' | 'lead' | 'member' | 'reservist' | 'external';
+export type OnboardingStage =
+  | 'not_contacted'
+  | 'interested'
+  | 'contacted'
+  | 'interviewed'
+  | 'sent_material'
+  | 'onboarded'
+  | 'working'
+  | 'active'
+  | 'paused'
+  | 'backup';
+export interface UserOnboardingChecklist {
+  questionnaire: boolean;
+  contract_signed: boolean;
+  start_here: boolean;
+  sales_training: boolean;
+  pricing_products: boolean;
+  ready_to_sell: boolean;
+}
 export type ClientStatus = 'prospect' | 'active' | 'paused' | 'archived';
 export type ProjectStatus =
   | 'planning'
@@ -34,8 +54,10 @@ export type NotificationType =
   | 'project_assigned'
   | 'approval_pending'
   | 'announcement'
-  | 'chat_mention';
+  | 'chat_mention'
+  | 'weekly_report';
 export type ChatRoomKind = 'division' | 'dm' | 'group';
+export type WeeklyReportStatus = 'draft' | 'submitted' | 'reviewed';
 
 export interface Announcement {
   id: string;
@@ -93,6 +115,8 @@ export interface User {
   divisions: DivisionCode[];
   manager_id: string | null;
   role: UserRole;
+  onboarding_stage: OnboardingStage | null;
+  onboarding_checklist: UserOnboardingChecklist | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -194,6 +218,24 @@ export interface Notification {
   created_at: string;
 }
 
+export interface WeeklyReport {
+  id: string;
+  subject_user_id: string;
+  author_id: string;
+  reviewer_id: string | null;
+  division_code: DivisionCode;
+  week_start: string;
+  week_end: string;
+  auto_summary: string;
+  manual_summary: string | null;
+  reviewer_summary: string | null;
+  status: WeeklyReportStatus;
+  submitted_at: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ActivityLogEntry {
   id: string;
   entity_type: string;
@@ -248,6 +290,7 @@ export interface ChatReadState {
   last_read_at: string;
 }
 
+
 // Generic Database shape for createServerClient<Database>().
 export interface Database {
   public: {
@@ -277,6 +320,11 @@ export interface Database {
         Row: Notification;
         Insert: Partial<Notification>;
         Update: Partial<Notification>;
+      };
+      weekly_reports: {
+        Row: WeeklyReport;
+        Insert: Partial<WeeklyReport>;
+        Update: Partial<WeeklyReport>;
       };
       activity_log: {
         Row: ActivityLogEntry;

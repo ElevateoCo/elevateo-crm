@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { getStore, saveStore, type LocalUser } from './store';
 import { hashPassword, verifyPassword } from './hash';
 import { SESSION_COOKIE } from './session-cookie';
+import { defaultOnboardingChecklist } from '@/lib/people-ops';
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
@@ -65,6 +66,8 @@ export async function signUpUser(
     divisions: [],
     manager_id: null,
     role: 'member',
+    onboarding_stage: 'not_contacted',
+    onboarding_checklist: defaultOnboardingChecklist,
     is_active: true,
     created_at: now,
     updated_at: now,

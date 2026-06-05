@@ -4,7 +4,7 @@ import type { User } from '@/lib/supabase/types';
 /**
  * Small Teams-style presence indicator. Sits at the bottom-right of an avatar.
  * Green = online, gold (clock) = away, red (minus) = DND.
- * Offline renders nothing so the avatar stays clean.
+ * Offline renders as a muted filled dot so status is visible everywhere.
  */
 export function PresenceDot({
   user,
@@ -17,7 +17,6 @@ export function PresenceDot({
 }) {
   if (!user) return null;
   const status: EffectiveStatus = effectiveStatus(user);
-  const isOffline = status === 'offline';
   const color = statusColor[status];
 
   return (
@@ -32,8 +31,7 @@ export function PresenceDot({
         height: size,
         right: -1,
         bottom: -1,
-        background: isOffline ? 'transparent' : color,
-        border: isOffline ? '1.5px solid var(--color-fg-dim)' : undefined,
+        background: color,
       }}
     >
       {status === 'dnd' ? (

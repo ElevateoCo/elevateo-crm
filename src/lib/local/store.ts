@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { hashPassword } from './hash';
+import { defaultOnboardingChecklist } from '@/lib/people-ops';
 import type {
   ActivityLogEntry,
   Approval,
@@ -176,7 +177,7 @@ function seed(store: Store) {
       division: 'sales',
       manager: 'roy',
     },
-    // Tier 3: marketing leads under Hazem
+    // Tier 3: marketing lead under Bailey, with Hazem as owner/final approval.
     {
       key: 'bailey',
       email: 'bailey@elevateoco.com',
@@ -202,6 +203,14 @@ function seed(store: Store) {
       role: 'lead',
       division: 'ecommerce',
       extraDivisions: ['marketing'],
+      manager: 'hazem',
+    },
+    {
+      key: 'arian',
+      email: 'arian.hidalgo@elevateoco.com',
+      full_name: 'Arián Hidalgo',
+      role: 'external',
+      division: 'marketing',
       manager: 'hazem',
     },
     // Tier 3: technology members under Arnis
@@ -246,6 +255,15 @@ function seed(store: Store) {
       division: 'sales',
       manager: 'thomas',
     },
+    {
+      key: 'core',
+      email: 'core@elevateoco.com',
+      full_name: 'Core Member',
+      role: 'lead',
+      division: 'sales',
+      manager: 'roy',
+      password: 'password123',
+    },
   ];
 
   const byKey = new Map<string, LocalUser>();
@@ -271,6 +289,8 @@ function seed(store: Store) {
       divisions,
       manager_id: p.manager ? byKey.get(p.manager)?.id ?? null : null,
       role: p.role,
+      onboarding_stage: 'not_contacted',
+      onboarding_checklist: defaultOnboardingChecklist,
       is_active: true,
       created_at: now,
       updated_at: now,

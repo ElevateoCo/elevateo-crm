@@ -71,6 +71,7 @@ insert into _seed_users (email, full_name, role, division_code, manager_email, e
   ('bailey.barry@elevateoco.co.uk',   'Bailey Barry',       'lead',      'marketing',  'hazem.dweik@elevateoco.com',      array['marketing','technology']::division_code[]),
   ('emil.larsen@elevateoco.com',      'Emil Larsen',        'lead',      'marketing',  'hazem.dweik@elevateoco.com',      array['marketing','technology','ecommerce']::division_code[]),
   ('julianvdijk05@gmail.com',         'Julian van Dijk',    'lead',      'marketing',  'hazem.dweik@elevateoco.com',      array['marketing','ecommerce']::division_code[]),
+  ('arian.hidalgo@elevateoco.com',    'Arián Hidalgo',      'external',  'marketing',  'hazem.dweik@elevateoco.com',      array['marketing']::division_code[]),
 
   -- Technology Division
   ('arnis.piekus@elevateoco.com',     'Arnis Piekus',       'lead',      'technology', 'allan.chan@elevateoco.com',       array['technology']::division_code[]),

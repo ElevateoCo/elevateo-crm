@@ -27,10 +27,12 @@ export function ManagePeopleClient({
   users,
   divisions,
   canGrantAdmin,
+  canEdit = true,
 }: {
   users: User[];
   divisions: Division[];
   canGrantAdmin: boolean;
+  canEdit?: boolean;
 }) {
   const [query, setQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('');
@@ -172,13 +174,20 @@ export function ManagePeopleClient({
       </div>
 
       <div className="rounded-lg border border-[var(--color-border)] bg-white overflow-hidden">
-        <div className="grid grid-cols-[1fr_120px_140px_180px_80px_100px] text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)] px-4 py-2 border-b border-[var(--color-border)]">
+        <div
+          className={
+            'text-[10px] font-semibold uppercase tracking-wider text-[var(--color-fg-dim)] px-4 py-2 border-b border-[var(--color-border)] grid ' +
+            (canEdit
+              ? 'grid-cols-[1fr_120px_140px_180px_80px_100px]'
+              : 'grid-cols-[1fr_120px_140px_180px_80px]')
+          }
+        >
           <div><SortHeader k="name">Person</SortHeader></div>
           <div><SortHeader k="role">Role</SortHeader></div>
           <div><SortHeader k="division">Division</SortHeader></div>
           <div><SortHeader k="manager">Reports to</SortHeader></div>
           <div><SortHeader k="active">Status</SortHeader></div>
-          <div className="text-right">Edit</div>
+          {canEdit ? <div className="text-right">Edit</div> : null}
         </div>
         {filtered.map((u) => {
           const div = u.division_id ? divMap.get(u.division_id) : null;
@@ -186,7 +195,12 @@ export function ManagePeopleClient({
           return (
             <div
               key={u.id}
-              className="grid grid-cols-[1fr_120px_140px_180px_80px_100px] items-center px-4 py-2.5 border-b border-[var(--color-border)] last:border-b-0"
+              className={
+                'grid items-center px-4 py-2.5 border-b border-[var(--color-border)] last:border-b-0 ' +
+                (canEdit
+                  ? 'grid-cols-[1fr_120px_140px_180px_80px_100px]'
+                  : 'grid-cols-[1fr_120px_140px_180px_80px]')
+              }
             >
               <div className="flex items-center gap-2 min-w-0">
                 <UserPill user={u} />
@@ -216,14 +230,16 @@ export function ManagePeopleClient({
                   <Badge tone="default">Inactive</Badge>
                 )}
               </div>
-              <div className="text-right">
-                <PersonEditor
-                  user={u}
-                  divisions={divisions}
-                  users={users}
-                  canGrantAdmin={canGrantAdmin}
-                />
-              </div>
+              {canEdit ? (
+                <div className="text-right">
+                  <PersonEditor
+                    user={u}
+                    divisions={divisions}
+                    users={users}
+                    canGrantAdmin={canGrantAdmin}
+                  />
+                </div>
+              ) : null}
             </div>
           );
         })}

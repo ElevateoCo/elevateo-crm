@@ -75,13 +75,13 @@ const tree: Node = {
       tag: 'core',
       children: [
         {
-          name: 'Hazem Dweik',
-          role: 'Marketing Owner / final approval',
+          name: 'Bailey Barry',
+          role: 'Marketing Lead / front-line ownership',
           tag: 'core',
           children: [
             {
-              name: 'Bailey Barry',
-              role: 'CMO / Rosey Co Squad Leader',
+              name: 'Hazem Dweik',
+              role: 'Marketing Owner / final approval',
               tag: 'core',
               children: [
                 { name: "Barry's Brother", role: 'Reservist', tag: 'reservist' },
@@ -93,6 +93,7 @@ const tree: Node = {
             { name: 'Emil Larsen', role: 'Interim COO / Video & Creative Fulfilment (GMT+1, Denmark)', tag: 'core' },
             { name: 'Julian van Dijk', role: 'Head of Affiliate Marketing / Social Media (GMT+1, Netherlands)', tag: 'core' },
             { name: 'James Taylor', role: 'Sales & Marketing (Ireland)', tag: 'core' },
+            { name: 'Arián Hidalgo', role: 'Marketing External', tag: 'external' },
           ],
         },
       ],
@@ -192,8 +193,8 @@ function TreeList({ nodes }: { nodes: Node[] }) {
                 className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
                 style={{ background: dotColor[node.tag] }}
               />
-              <strong className="font-bold text-black">{node.name}</strong>
-              <span className="text-[#151515]"> - {node.role}</span>
+              <strong className="font-bold text-[var(--color-fg)]">{node.name}</strong>
+              <span className="text-[var(--color-fg-muted)]"> - {node.role}</span>
               {node.children?.length ? <TreeList nodes={node.children} /> : null}
             </>
           )}
@@ -252,7 +253,7 @@ export default function HierarchyPage() {
           </p>
 
           <div
-            className="border border-[#d8d8d8] rounded-lg p-[22px] bg-white shadow-[0_8px_22px_rgba(0,0,0,0.06)] text-[15px] leading-[1.5] text-[#151515]"
+            className="border border-[var(--color-border)] rounded-lg p-[22px] bg-white shadow-[0_8px_22px_rgba(0,0,0,0.06)] text-[15px] leading-[1.5] text-[var(--color-fg-muted)]"
             style={{ fontFamily: 'Arial, sans-serif' }}
           >
             <ul className="m-0 p-0 list-none">
@@ -261,7 +262,7 @@ export default function HierarchyPage() {
                   className="inline-block w-[9px] h-[9px] rounded-full mr-[7px] align-[1px]"
                   style={{ background: dotColor.core }}
                 />
-                <strong className="font-bold text-black">{tree.name}</strong> - {tree.role}
+                <strong className="font-bold text-[var(--color-fg)]">{tree.name}</strong> - {tree.role}
                 {tree.children?.length ? <TreeList nodes={tree.children} /> : null}
               </li>
             </ul>
