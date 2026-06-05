@@ -19,6 +19,7 @@ const VALID_ROLES: ReadonlySet<UserRole> = new Set([
 
 const CreateLibrarySchema = z.object({
   name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
+  category: z.string().trim().min(2, 'Category must be at least 2 characters').max(50),
   description: z.string().trim().max(500),
   url: z
     .string()
@@ -50,6 +51,7 @@ export async function createLibraryAction(formData: FormData) {
 
   const parsed = CreateLibrarySchema.safeParse({
     name: formData.get('name'),
+    category: formData.get('category') || 'General',
     description: formData.get('description') ?? '',
     url: formData.get('url'),
   });
@@ -76,6 +78,7 @@ export async function createLibraryAction(formData: FormData) {
 
   const { error } = await supabase.from('libraries').insert({
     name: parsed.data.name,
+    category: parsed.data.category,
     description: parsed.data.description,
     url: parsed.data.url,
     slug,

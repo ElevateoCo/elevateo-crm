@@ -9,6 +9,7 @@ export type Library = {
   id: string;
   slug: string;
   name: string;
+  category: string;
   description: string;
   url: string; // external link (e.g. Google Drive folder) opened on click
   sort_order: number;

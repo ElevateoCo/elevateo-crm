@@ -10,7 +10,8 @@ export async function getLibraries(): Promise<Library[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('libraries')
-    .select('id, slug, name, description, url, created_at')
+    .select('id, slug, name, category, description, url, sort_order, created_at')
+    .order('category', { ascending: true })
     .order('sort_order', { ascending: true });
   return (data ?? []) as Library[];
 }
@@ -19,7 +20,7 @@ export async function getLibraryBySlug(slug: string): Promise<Library | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('libraries')
-    .select('id, slug, name, description, url, created_at')
+    .select('id, slug, name, category, description, url, sort_order, created_at')
     .eq('slug', slug)
     .maybeSingle();
   return (data as Library) ?? null;

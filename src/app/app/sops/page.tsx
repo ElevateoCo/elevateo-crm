@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ExternalLink, Settings2 } from 'lucide-react';
+import { ChevronDown, ExternalLink, Settings2 } from 'lucide-react';
 import { PageHeader } from '@/components/shell/page-header';
 import { Card } from '@/components/ui/card';
 import { getCurrentUser, getDivisions } from '@/lib/queries';
@@ -18,6 +18,13 @@ export default async function SopsPage() {
 
   // RLS filters to libraries this user may open (admins see all).
   const libraries = await getLibraries();
+  const categories = libraries.reduce((groups, library) => {
+    const category = library.category || 'General';
+    const entries = groups.get(category) ?? [];
+    entries.push(library);
+    groups.set(category, entries);
+    return groups;
+  }, new Map<string, typeof libraries>());
 
   return (
     <div>
@@ -27,19 +34,7 @@ export default async function SopsPage() {
       />
 
       <div className="space-y-6 p-7">
-        {isAdmin ? (
-          <Card className="bg-white p-5">
-            <div className="mb-4">
-              <h2 className="text-[15px] font-semibold tracking-tight text-[var(--color-fg)]">
-                Add library entry
-              </h2>
-              <p className="mt-1 text-[12px] text-[var(--color-fg-muted)]">
-                Create a link to a playbook, SOP folder, or onboarding resource.
-              </p>
-            </div>
-            <LibraryCreateForm />
-          </Card>
-        ) : null}
+        {isAdmin ? <LibraryCreateForm /> : null}
 
         {libraries.length === 0 ? (
           <Card className="bg-white p-10 text-center">
@@ -51,31 +46,52 @@ export default async function SopsPage() {
             </div>
           </Card>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {libraries.map((lib) => (
-              <Card key={lib.id} className="group relative bg-white p-5 transition hover:shadow-sm">
-                {isAdmin ? (
-                  <Link
-                    href={`/app/sops/${lib.slug}/settings`}
-                    className="absolute right-3 top-3 rounded-lg p-1.5 text-[var(--color-fg-dim)] hover:bg-[var(--color-surface-3)] hover:text-[var(--color-fg)]"
-                    title="Manage access"
-                  >
-                    <Settings2 className="h-4 w-4" />
-                  </Link>
-                ) : null}
-                <a
-                  href={lib.url || '#'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block"
-                >
-                  <ExternalLink className="h-5 w-5 text-[var(--color-fg-muted)]" />
-                  <h2 className="mt-3 text-[15px] font-semibold tracking-tight text-[var(--color-fg)] group-hover:underline">
-                    {lib.name}
-                  </h2>
-                  <p className="mt-1 text-[13px] text-[var(--color-fg-muted)]">{lib.description}</p>
-                </a>
-              </Card>
+          <div className="space-y-4">
+            {Array.from(categories.entries()).map(([category, entries]) => (
+              <details
+                key={category}
+                open
+                className="group/category overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3.5">
+                  <div>
+                    <h2 className="text-[14px] font-semibold text-[var(--color-fg)]">{category}</h2>
+                    <p className="text-[11px] text-[var(--color-fg-dim)]">
+                      {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
+                    </p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-[var(--color-fg-dim)] transition-transform group-open/category:rotate-180" />
+                </summary>
+                <div className="grid gap-4 border-t border-[var(--color-border)] p-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {entries.map((lib) => (
+                    <Card key={lib.id} className="group relative bg-white p-5 transition hover:shadow-sm">
+                      {isAdmin ? (
+                        <Link
+                          href={`/app/sops/${lib.slug}/settings`}
+                          className="absolute right-3 top-3 rounded-lg p-1.5 text-[var(--color-fg-dim)] hover:bg-[var(--color-surface-3)] hover:text-[var(--color-fg)]"
+                          title="Manage access"
+                        >
+                          <Settings2 className="h-4 w-4" />
+                        </Link>
+                      ) : null}
+                      <a
+                        href={lib.url || '#'}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block"
+                      >
+                        <ExternalLink className="h-5 w-5 text-[var(--color-fg-muted)]" />
+                        <h3 className="mt-3 text-[15px] font-semibold tracking-tight text-[var(--color-fg)] group-hover:underline">
+                          {lib.name}
+                        </h3>
+                        <p className="mt-1 text-[13px] text-[var(--color-fg-muted)]">
+                          {lib.description}
+                        </p>
+                      </a>
+                    </Card>
+                  ))}
+                </div>
+              </details>
             ))}
           </div>
         )}
