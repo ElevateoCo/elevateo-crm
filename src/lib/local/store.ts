@@ -129,9 +129,9 @@ function seed(store: Store) {
     },
     // Tier 2: division owners under Allan
     {
-      key: 'roy',
-      email: 'roy.neven@elevateoco.com',
-      full_name: 'Roy Neven',
+      key: 'lachie',
+      email: 'lachie@elevateoco.com',
+      full_name: 'Lachie',
       role: 'executive',
       division: 'sales',
       manager: 'allan',
@@ -144,14 +144,14 @@ function seed(store: Store) {
       division: 'technology',
       manager: 'allan',
     },
-    // Tier 3: sales managers under Roy
+    // Tier 3: sales managers under Lachie
     {
       key: 'thomas',
       email: 'thomas.charrier@elevateoco.com',
       full_name: 'Thomas Charrier',
       role: 'lead',
       division: 'sales',
-      manager: 'roy',
+      manager: 'lachie',
     },
     {
       key: 'zuri',
@@ -159,15 +159,7 @@ function seed(store: Store) {
       full_name: 'Zuri Robledo',
       role: 'lead',
       division: 'sales',
-      manager: 'roy',
-    },
-    {
-      key: 'lachie',
-      email: 'lachie@elevateoco.com',
-      full_name: 'Lachie',
-      role: 'lead',
-      division: 'sales',
-      manager: 'roy',
+      manager: 'lachie',
     },
     {
       key: 'lewis',
@@ -175,7 +167,7 @@ function seed(store: Store) {
       full_name: 'Lewis Hayward',
       role: 'lead',
       division: 'sales',
-      manager: 'roy',
+      manager: 'lachie',
     },
     // Tier 3: marketing lead under Bailey, with Hazem as owner/final approval.
     {
@@ -261,8 +253,16 @@ function seed(store: Store) {
       full_name: 'Core Member',
       role: 'lead',
       division: 'sales',
-      manager: 'roy',
+      manager: 'lachie',
       password: 'password123',
+    },
+    {
+      key: 'james',
+      email: 'james.taylor@elevateoco.com',
+      full_name: 'James Taylor',
+      role: 'member',
+      division: 'marketing',
+      manager: 'hazem',
     },
   ];
 
@@ -307,7 +307,7 @@ function seed(store: Store) {
     if (div && u) div.owner_id = u.id;
   };
   setOwner('admin', 'hazem');
-  setOwner('sales', 'roy');
+  setOwner('sales', 'lachie');
   setOwner('marketing', 'hazem');
   setOwner('technology', 'arnis');
   setOwner('ecommerce', 'hazem');
@@ -319,16 +319,18 @@ interface ProjectSpec {
   title: string;
   description: string;
   divisionCode: DivisionCode;
-  leadKey: string;
+  leadKey: string | null;
   status?: Project['status'];
   due_date?: string | null;
+  /** Additional people working on the project (beyond the lead). */
+  memberKeys?: string[];
 }
 
 interface ClientSpec {
   name: string;
   status: Client['status'];
   divisionCode: DivisionCode;
-  leadKey: string;
+  leadKey: string | null;
   contact_name?: string | null;
   notes?: string | null;
   projects: ProjectSpec[];
@@ -390,6 +392,15 @@ function seedClientsAndProjects(
           status: 'active',
           due_date: inDays(45),
         },
+        {
+          title: 'Documentary',
+          description: "Niels' documentary production.",
+          divisionCode: 'marketing',
+          leadKey: 'hazem',
+          memberKeys: ['emil'],
+          status: 'active',
+          due_date: inDays(60),
+        },
       ],
     },
     {
@@ -426,11 +437,283 @@ function seedClientsAndProjects(
         },
       ],
     },
+    {
+      name: 'Vitalscore',
+      status: 'active',
+      divisionCode: 'marketing',
+      leadKey: 'bailey',
+      contact_name: 'Vitalscore',
+      notes: 'Paid media + organic social management.',
+      projects: [
+        {
+          title: 'Meta Ads',
+          description: 'Meta paid advertising management.',
+          divisionCode: 'marketing',
+          leadKey: 'bailey',
+          status: 'active',
+          due_date: inDays(30),
+        },
+        {
+          title: 'SMM',
+          description: 'Social media management and organic content.',
+          divisionCode: 'marketing',
+          leadKey: 'emil',
+          memberKeys: ['james'],
+          status: 'active',
+          due_date: inDays(30),
+        },
+      ],
+    },
+    {
+      name: 'Kilcock',
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: 'bailey',
+      contact_name: 'Kilcock',
+      notes: 'Website build.',
+      projects: [
+        {
+          title: 'Website',
+          description: 'Website design and build.',
+          divisionCode: 'technology',
+          leadKey: 'bailey',
+          status: 'active',
+          due_date: inDays(30),
+        },
+      ],
+    },
+    {
+      name: 'Jad Bouw',
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: 'jeison',
+      contact_name: 'Jad Bouw',
+      notes: 'Website build plus SEO.',
+      projects: [
+        {
+          title: 'Website + SEO',
+          description: 'Website build and search engine optimisation.',
+          divisionCode: 'technology',
+          leadKey: 'jeison',
+          status: 'active',
+          due_date: inDays(40),
+        },
+      ],
+    },
+    {
+      name: "Eddie's Real Estate",
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: null,
+      contact_name: 'Eddie',
+      notes: 'Real estate project. Lead TBD.',
+      projects: [
+        {
+          title: 'Real Estate',
+          description: 'Real estate web/marketing project.',
+          divisionCode: 'technology',
+          leadKey: null,
+          status: 'active',
+          due_date: inDays(45),
+        },
+      ],
+    },
+    {
+      name: 'KCF Homes',
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: 'tanzeel',
+      contact_name: 'KCF Homes',
+      notes: 'Website build.',
+      projects: [
+        {
+          title: 'Website',
+          description: 'Website design and build.',
+          divisionCode: 'technology',
+          leadKey: 'tanzeel',
+          status: 'active',
+          due_date: inDays(30),
+        },
+      ],
+    },
+    {
+      name: 'Verbiestschilderwerken NL',
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: 'arnis',
+      contact_name: 'Verbiestschilderwerken',
+      notes: 'NL painting company — web/marketing.',
+      projects: [
+        {
+          title: 'Website',
+          description: 'Website build and delivery.',
+          divisionCode: 'technology',
+          leadKey: 'arnis',
+          memberKeys: ['lachie'],
+          status: 'active',
+          due_date: inDays(30),
+        },
+      ],
+    },
+    {
+      name: 'C3',
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: null,
+      contact_name: 'C3',
+      notes: 'Website.',
+      projects: [
+        {
+          title: 'Website',
+          description: 'Website build.',
+          divisionCode: 'technology',
+          leadKey: null,
+          status: 'active',
+          due_date: inDays(14),
+        },
+      ],
+    },
+    {
+      name: 'Vitality',
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: null,
+      contact_name: 'Vitality',
+      notes: 'Website.',
+      projects: [
+        {
+          title: 'Website',
+          description: 'Website build.',
+          divisionCode: 'technology',
+          leadKey: null,
+          status: 'active',
+          due_date: inDays(14),
+        },
+      ],
+    },
+    {
+      name: 'Sig',
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: 'emil',
+      contact_name: 'Sig',
+      notes: 'Development in progress.',
+      projects: [
+        {
+          title: 'Development',
+          description: 'Development started.',
+          divisionCode: 'technology',
+          leadKey: 'emil',
+          status: 'active',
+          due_date: inDays(45),
+        },
+      ],
+    },
+    {
+      name: 'Heartlands KC',
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: 'emil',
+      contact_name: 'Heartlands KC',
+      notes: 'In progress.',
+      projects: [
+        {
+          title: 'Website',
+          description: 'Website build — in progress.',
+          divisionCode: 'technology',
+          leadKey: 'emil',
+          memberKeys: ['jeison'],
+          status: 'active',
+          due_date: inDays(35),
+        },
+      ],
+    },
+    {
+      name: "Joe's Jewellery",
+      status: 'active',
+      divisionCode: 'technology',
+      leadKey: 'chase',
+      contact_name: 'Joe',
+      notes: 'Jewellery store project.',
+      projects: [
+        {
+          title: 'Website',
+          description: 'Jewellery store build.',
+          divisionCode: 'technology',
+          leadKey: 'chase',
+          status: 'active',
+          due_date: inDays(30),
+        },
+      ],
+    },
+    {
+      name: 'GSM',
+      status: 'active',
+      divisionCode: 'marketing',
+      leadKey: 'arian',
+      contact_name: 'GSM',
+      notes: 'Organic social posting.',
+      projects: [
+        {
+          title: 'Organic Posting',
+          description: 'Organic social content posting.',
+          divisionCode: 'marketing',
+          leadKey: 'arian',
+          memberKeys: ['emil'],
+          status: 'active',
+          due_date: inDays(30),
+        },
+      ],
+    },
+    {
+      name: 'SoarxTax',
+      status: 'active',
+      divisionCode: 'marketing',
+      leadKey: 'james',
+      contact_name: 'SoarxTax',
+      notes: 'Organic posting plus SEO.',
+      projects: [
+        {
+          title: 'Organic Posting',
+          description: 'Organic social content posting.',
+          divisionCode: 'marketing',
+          leadKey: 'james',
+          status: 'active',
+          due_date: inDays(30),
+        },
+        {
+          title: 'SEO',
+          description: 'Search engine optimisation.',
+          divisionCode: 'marketing',
+          leadKey: 'chase',
+          status: 'active',
+          due_date: inDays(40),
+        },
+      ],
+    },
+    {
+      name: 'Simon',
+      status: 'active',
+      divisionCode: 'marketing',
+      leadKey: 'emil',
+      contact_name: 'Simon',
+      notes: 'Content scheduling.',
+      projects: [
+        {
+          title: 'Content Scheduling',
+          description: 'Scheduling content.',
+          divisionCode: 'marketing',
+          leadKey: 'emil',
+          status: 'active',
+          due_date: inDays(21),
+        },
+      ],
+    },
   ];
 
   for (const c of clientSpecs) {
     const division = divByCode.get(c.divisionCode);
-    const lead = byKey.get(c.leadKey);
+    const lead = c.leadKey ? byKey.get(c.leadKey) : null;
     const clientId = randomUUID();
     store.clients.push({
       id: clientId,
@@ -450,9 +733,10 @@ function seedClientsAndProjects(
 
     for (const p of c.projects) {
       const projDiv = divByCode.get(p.divisionCode);
-      const projLead = byKey.get(p.leadKey);
+      const projLead = p.leadKey ? byKey.get(p.leadKey) : null;
+      const projectId = randomUUID();
       store.projects.push({
-        id: randomUUID(),
+        id: projectId,
         client_id: clientId,
         division_id: projDiv?.id ?? null,
         lead_id: projLead?.id ?? null,
@@ -465,6 +749,21 @@ function seedClientsAndProjects(
         created_at: now,
         updated_at: now,
       });
+
+      // Lead + named members get project_members rows (deduped).
+      const memberIds = new Set<string>();
+      if (projLead) memberIds.add(projLead.id);
+      for (const key of p.memberKeys ?? []) {
+        const member = byKey.get(key);
+        if (member) memberIds.add(member.id);
+      }
+      for (const userId of memberIds) {
+        store.project_members.push({
+          project_id: projectId,
+          user_id: userId,
+          created_at: now,
+        });
+      }
     }
   }
 }

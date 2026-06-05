@@ -27,22 +27,22 @@ The full core roster is created automatically on first boot. Every account uses 
 |---|---|---|---|---|---|
 | Allan Chan | Owner (CEO) | Admin | - | `allan.chan@elevateoco.com` | `password123` |
 | Hazem Dweik | Owner | Admin | - | `hazem.dweik@elevateoco.com` | `password123` |
-| Roy Neven | Executive (Sales Owner) | Sales | Allan | `roy.neven@elevateoco.com` | `password123` |
+| Lachie | Executive (Sales Owner) | Sales | Allan | `lachie@elevateoco.com` | `password123` |
 | Arnis | Executive (CTO) | Technology | Allan | `arnis@elevateoco.com` | `password123` |
-| Thomas Charrier | Lead (Sales Manager) | Sales | Roy | `thomas.charrier@elevateoco.com` | `password123` |
-| Zuri Robledo | Lead | Sales | Roy | `zuri.robledo@elevateoco.com` | `password123` |
-| Lachie | Lead | Sales | Roy | `lachie@elevateoco.com` | `password123` |
-| Lewis Hayward | Lead | Sales | Roy | `lewis.hayward@elevateoco.com` | `password123` |
+| Thomas Charrier | Lead (Sales Manager) | Sales | Lachie | `thomas.charrier@elevateoco.com` | `password123` |
+| Zuri Robledo | Lead | Sales | Lachie | `zuri.robledo@elevateoco.com` | `password123` |
+| Lewis Hayward | Lead | Sales | Lachie | `lewis.hayward@elevateoco.com` | `password123` |
 | Nathan | Member | Sales | Thomas | `nathan@elevateoco.com` | `password123` |
 | Bailey | Lead (Squad Leader) | Marketing | Hazem | `bailey@elevateoco.com` | `password123` |
 | Emil Larsen | Member | Marketing | Hazem | `emil.larsen@elevateoco.com` | `password123` |
+| James Taylor | Member | Marketing | Hazem | `james.taylor@elevateoco.com` | `password123` |
 | Julian | Lead | E-commerce | Hazem | `julian@elevateoco.com` | `password123` |
 | Jeison | Member | Technology | Arnis | `jeison@elevateoco.com` | `password123` |
 | Tanzeel Ahmad | Member | Technology | Arnis | `tanzeel.ahmad@elevateoco.com` | `password123` |
 | Chase Buchanan | Member | Technology | Arnis | `chase.buchanan@elevateoco.com` | `password123` |
 | Callum | Member | Technology | Arnis | `callum@elevateoco.com` | `password123` |
 
-Division ownership: Allan -> admin (CEO), Hazem -> admin / marketing / e-commerce / people, Roy -> sales, Arnis -> technology.
+Division ownership: Allan -> admin (CEO), Hazem -> admin / marketing / e-commerce / people, Lachie -> sales, Arnis -> technology.
 
 Externals, reservists, partners, and candidates from the hierarchy are intentionally **not** seeded - only the core team.
 
